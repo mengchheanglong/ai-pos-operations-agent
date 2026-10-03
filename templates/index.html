@@ -1048,91 +1048,55 @@
     =========================================== -->
     <header>
         <div class="header-left">
-            <div class="pill-info" title="Store Location">
+            <div class="pill-info" title="Elora POS Terminal">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
-                <span>Elora</span>
+                <span style="font-weight: 700;">Elora POS</span>
             </div>
 
-            <div class="pill-info" title="Terminal Register ID & Clerk">
+            <div class="pill-info" title="Cashier Operator">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                    <line x1="8" y1="21" x2="16" y2="21"></line>
-                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <span>22003F17</span>
-            </div>
-        </div>
-
-        <div class="header-center">
-            <button class="pill-btn active" id="tab-sell" onclick="switchMainTab('sell')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
-                <span>Sell</span>
-            </button>
-
-            <button class="pill-btn" id="tab-tickets" onclick="showToast('Tickets list synchronized')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                    <circle cx="12" cy="12" r="2"></circle>
-                    <path d="M6 12h.01M18 12h.01"></path>
-                </svg>
-                <span>Tickets</span>
-            </button>
-
-            <button class="pill-btn" id="tab-returns" onclick="showToast('Returns portal active')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="1 4 1 10 7 10"></polyline>
-                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                </svg>
-                <span>Returns</span>
-            </button>
-
-            <button class="pill-btn" id="tab-register" onclick="openRegisterDialog()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                    <line x1="2" y1="10" x2="22" y2="10"></line>
-                </svg>
-                <span>Register</span>
-            </button>
-
-            <div class="health-badge" title="DeepSeek LLM + Sheets + Telegram Live">
-                <span class="status-dot"></span>
-                <span>AI Core Live</span>
+                <span>Clerk: Mengchheang</span>
             </div>
         </div>
 
         <div class="header-right">
-            <button class="icon-btn" onclick="syncCatalog(true)" title="Refresh Shelf Inventory">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- Real-time Service Health -->
+            <div class="health-badge" title="DeepSeek-V3 LLM API Active">
+                <span class="status-dot"></span>
+                <span>DeepSeek LLM</span>
+            </div>
+
+            <div class="health-badge" title="Telegram Bot API Active (@business0psBot)">
+                <span class="status-dot"></span>
+                <span>Telegram Alerts</span>
+            </div>
+
+            <div class="health-badge" title="Google Sheets Live Sync">
+                <span class="status-dot"></span>
+                <span>Sheets Inventory</span>
+            </div>
+
+            <!-- Functional Action: Register Audit Log -->
+            <button class="pill-btn" onclick="openRegisterDialog()" title="Open Google Sheets Orders & Audit Trail">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <span style="font-weight: 600; color: var(--text-main);">Register Audit Log</span>
+            </button>
+
+            <!-- Functional Action: Refresh Stock -->
+            <button class="pill-btn" onclick="syncCatalog(true)" title="Fetch latest inventory from Google Sheets">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
                 </svg>
-            </button>
-
-            <button class="icon-btn" onclick="toggleFullScreen()" title="Fullscreen Terminal">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <polyline points="9 21 3 21 3 15"></polyline>
-                    <line x1="21" y1="3" x2="14" y2="10"></line>
-                    <line x1="3" y1="21" x2="10" y2="14"></line>
-                </svg>
-            </button>
-
-            <button class="pill-btn" onclick="openRegisterDialog()">
-                <span>⋮ Tools</span>
-            </button>
-
-            <button class="pill-btn" onclick="showToast('Terminal session locked (PIN: 2200)')">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-                <span>Lock</span>
+                <span>Refresh Stock</span>
             </button>
         </div>
     </header>
@@ -1177,7 +1141,6 @@
                     <button class="cat-pill active" onclick="setCategory('all', this)">All Products</button>
                     <button class="cat-pill" onclick="setCategory('beauty', this)">Beauty</button>
                     <button class="cat-pill" onclick="setCategory('apparel', this)">Apparel</button>
-                    <button class="cat-pill" onclick="setCategory('other', this)">Other</button>
                 </div>
 
                 <!-- 1-Click Rubric Scenario Testing Presets -->
@@ -1280,7 +1243,6 @@
                 </div>
 
                 <div class="action-row">
-                    <button class="btn-hold" onclick="holdCurrentTicket()">Hold Ticket</button>
                     <button class="btn-pay" id="btn-pay-action" onclick="executeCheckout()">
                         <span id="pay-btn-label">Pay $0.00</span>
                         <span>→</span>
