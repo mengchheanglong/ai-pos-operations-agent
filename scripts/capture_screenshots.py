@@ -202,46 +202,54 @@ def capture_web_ui():
         page.goto("http://127.0.0.1:5000")
         page.wait_for_timeout(1000)
 
-        # 1. Main Dashboard
+        # 1. Main Storefront Catalog
         p1 = os.path.join(output_dir, "01_web_ui_dashboard.png")
         page.screenshot(path=p1)
         print(f"Captured: {p1}")
 
         # 2. Scenario 1 - Auto-approve
-        page.fill("#message", "I want 2 black Basic Shirts")
-        page.click("#submit-btn")
-        page.wait_for_selector("#result.show", timeout=15000)
+        page.fill("#order-input", "I want 2 black Basic Shirts")
+        page.click("#process-btn")
+        page.wait_for_selector("#decision-modal.active", timeout=15000)
         time.sleep(1)
         p2 = os.path.join(output_dir, "02_scenario_auto_approve.png")
         page.screenshot(path=p2)
         print(f"Captured: {p2}")
+        page.click(".modal-close")
+        time.sleep(0.5)
 
         # 3. Scenario 2 - Escalate to Owner
-        page.fill("#message", "I need 12 black Basic Shirts")
-        page.click("#submit-btn")
-        page.wait_for_selector("#result.show", timeout=15000)
+        page.fill("#order-input", "I need 12 black Basic Shirts")
+        page.click("#process-btn")
+        page.wait_for_selector("#decision-modal.active", timeout=15000)
         time.sleep(1)
         p3 = os.path.join(output_dir, "03_scenario_escalate.png")
         page.screenshot(path=p3)
         print(f"Captured: {p3}")
+        page.click(".modal-close")
+        time.sleep(0.5)
 
         # 4. Scenario 3 - Suggest Alternative
-        page.fill("#message", "I want 25 black Basic Shirts")
-        page.click("#submit-btn")
-        page.wait_for_selector("#result.show", timeout=15000)
+        page.fill("#order-input", "I want 25 black Basic Shirts")
+        page.click("#process-btn")
+        page.wait_for_selector("#decision-modal.active", timeout=15000)
         time.sleep(1)
         p4 = os.path.join(output_dir, "04_scenario_alternative.png")
         page.screenshot(path=p4)
         print(f"Captured: {p4}")
+        page.click(".modal-close")
+        time.sleep(0.5)
 
         # 5. Scenario 4 - Clarification
-        page.fill("#message", "Do you have blue jeans?")
-        page.click("#submit-btn")
-        page.wait_for_selector("#result.show", timeout=15000)
+        page.fill("#order-input", "Do you have blue jeans?")
+        page.click("#process-btn")
+        page.wait_for_selector("#decision-modal.active", timeout=15000)
         time.sleep(1)
         p5 = os.path.join(output_dir, "05_scenario_clarify.png")
         page.screenshot(path=p5)
         print(f"Captured: {p5}")
+        page.click(".modal-close")
+        time.sleep(0.5)
 
         browser.close()
 

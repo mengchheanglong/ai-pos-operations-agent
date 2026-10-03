@@ -35,13 +35,31 @@ def process_order():
     return jsonify(result)
 
 
+@app.route("/api/products")
+def get_products():
+    products = agent.sheets.read_products() if agent.sheets else []
+    return jsonify(products)
+
+
+@app.route("/api/orders")
+def get_orders():
+    orders = getattr(agent.sheets, "orders", []) if agent.sheets else []
+    return jsonify(orders)
+
+
+@app.route("/api/logs")
+def get_logs():
+    logs = getattr(agent.sheets, "logs", []) if agent.sheets else []
+    return jsonify(logs)
+
+
 @app.route("/api/health")
 def health():
     return jsonify({
         "status": "ok",
         "deepseek_configured": bool(os.environ.get("DEEPSEEK_API_KEY")),
         "telegram_configured": bool(os.environ.get("TELEGRAM_BOT_TOKEN")),
-        "sheets_configured": bool(os.environ.get("GOOGLE_SHEET_ID")),
+        "sheets_configured": bool(os.environ.get("GOOGLE_SHEET_ID") or agent.sheets),
     })
 
 

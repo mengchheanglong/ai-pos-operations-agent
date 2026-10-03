@@ -3,251 +3,1183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Business Operations Agent</title>
+    <title>Aura Apparel & Co. — AI Autonomous Operations Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-body: #090d16;
+            --bg-surface: #111827;
+            --bg-card: #162032;
+            --bg-card-hover: #1e293b;
+            --border: #24324a;
+            --border-highlight: #3b82f6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 30px -5px rgba(59, 130, 246, 0.25);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
             min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
-        .container {
-            max-width: 900px;
+
+        /* Ambient Glow Background */
+        .ambient-glow {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 400px;
+            background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.05) 50%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top Navigation Bar */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            backdrop-filter: blur(16px);
+            background: rgba(9, 13, 22, 0.85);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .brand-name {
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .subtitle {
-            text-align: center;
-            color: #94a3b8;
-            margin-bottom: 2rem;
-        }
-        .card {
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #334155;
-        }
-        .card h2 {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
+
+        .brand-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: rgba(59, 130, 246, 0.15);
             color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            margin-left: 0.3rem;
         }
-        .form-group {
-            margin-bottom: 1rem;
+
+        .nav-status-group {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
         }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #475569;
-            border-radius: 8px;
-            background: #0f172a;
-            color: #e2e8f0;
-            font-size: 1rem;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #60a5fa;
-        }
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        button:hover { opacity: 0.9; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .result {
-            display: none;
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-            background: #0f172a;
-            border: 1px solid #334155;
-        }
-        .result.show { display: block; }
-        .result h3 {
-            margin-bottom: 0.5rem;
-            color: #a78bfa;
-        }
-        .result pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-        .status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 0.35rem 0.75rem;
             border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            box-shadow: 0 0 8px var(--accent-emerald);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        .btn-audit {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.4rem 0.85rem;
+            border-radius: var(--radius-sm);
             font-size: 0.8rem;
             font-weight: 600;
-        }
-        .status-approved { background: #065f46; color: #6ee7b7; }
-        .status-escalated { background: #92400e; color: #fcd34d; }
-        .status-rejected { background: #991b1b; color: #fca5a5; }
-        .status-clarify { background: #1e40af; color: #93c5fd; }
-        .status-alternative { background: #5b21b6; color: #c4b5fd; }
-        .health {
+            cursor: pointer;
+            transition: all 0.2s;
             display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
+            align-items: center;
+            gap: 0.4rem;
         }
-        .health-item {
+        .btn-audit:hover {
+            border-color: var(--accent-blue);
+            background: #1e293b;
+        }
+
+        /* Main Layout */
+        main {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        /* Hero / AI Order Banner */
+        .ai-order-banner {
+            background: linear-gradient(145deg, #131d2e 0%, #172438 100%);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-glow), var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-order-banner::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .banner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .banner-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.85rem;
         }
-        .health-dot {
-            width: 8px;
-            height: 8px;
+
+        .banner-subtitle {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .customer-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 0.3rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+        }
+        .customer-input-group input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            outline: none;
+            width: 110px;
+        }
+
+        /* Conversational Bar */
+        .ai-input-bar {
+            display: flex;
+            gap: 0.75rem;
+            position: relative;
+            background: var(--bg-body);
+            border: 1px solid #334155;
+            border-radius: var(--radius-md);
+            padding: 0.4rem 0.5rem 0.4rem 1.1rem;
+            transition: all 0.2s;
+        }
+
+        .ai-input-bar:focus-within {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .ai-input-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .ai-input-bar input::placeholder {
+            color: #64748b;
+        }
+
+        .btn-process {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.15s, opacity 0.15s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-process:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-process:active { transform: translateY(0); }
+        .btn-process:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Scenario Quick Buttons */
+        .demo-presets-wrap {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .presets-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-right: 0.2rem;
+        }
+
+        .preset-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .preset-btn:hover {
+            color: var(--text-primary);
+            border-color: #475569;
+            background: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .preset-tag {
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
         }
-        .health-dot.ok { background: #22c55e; }
-        .health-dot.fail { background: #ef4444; }
-        .loading {
-            display: none;
+        .tag-green { background: #10b981; }
+        .tag-amber { background: #f59e0b; }
+        .tag-purple { background: #8b5cf6; }
+        .tag-blue { background: #3b82f6; }
+
+        /* Section Headings */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .catalog-badge {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Product Cards Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* SVG Shirt Illustration */
+        .card-img-wrap {
+            height: 150px;
+            border-radius: var(--radius-sm);
+            display: grid;
+            place-items: center;
+            margin-bottom: 1rem;
+            background: #0f172a;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .card-stock-tag {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+            backdrop-filter: blur(6px);
+        }
+
+        .tag-in-stock {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .tag-low-stock {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fde68a;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .sku-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .product-title {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        .product-variant {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.85rem;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 0.85rem;
+        }
+
+        .price-val {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .price-stock {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .qty-stepper {
+            display: flex;
+            align-items: center;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            width: 80px;
+        }
+
+        .qty-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            width: 26px;
+            height: 32px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: grid;
+            place-items: center;
+        }
+        .qty-btn:hover { background: #1e293b; color: white; }
+
+        .qty-display {
+            flex: 1;
             text-align: center;
-            padding: 2rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
         }
-        .loading.show { display: block; }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #334155;
-            border-top-color: #60a5fa;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+
+        .btn-quick-order {
+            flex: 1;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .btn-quick-order:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        /* Decision Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 7, 14, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            place-items: center;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.active {
+            display: grid;
+        }
+
+        .decision-modal {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 580px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            animation: modal-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modal-pop {
+            from { transform: scale(0.95) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border-radius: 6px;
+        }
+        .modal-close:hover { background: var(--bg-card-hover); color: white; }
+
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* 4-Step Visual Progress Tracker */
+        .progress-flow {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .flow-step {
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.3rem;
+            position: relative;
+        }
+
+        .flow-step.complete {
+            border-color: var(--accent-emerald);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .flow-icon {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .flow-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .flow-step.complete .flow-label {
+            color: #6ee7b7;
+        }
+
+        /* Decision Banner */
+        .decision-badge-banner {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+        }
+
+        .decision-approved {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+        }
+
+        .decision-escalated {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: #fbbf24;
+        }
+
+        .decision-alternative_suggested {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: #c084fc;
+        }
+
+        .decision-clarify {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #60a5fa;
+        }
+
+        .decision-status-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .decision-order-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            padding: 2px 6px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        /* Details list */
+        .result-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-section-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .reason-text {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .telegram-preview-box {
+            background: #0c1322;
+            border-left: 3px solid #0ea5e9;
+            padding: 0.75rem 1rem;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: 0.82rem;
+            color: #cbd5e1;
+            white-space: pre-line;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Audit Drawer */
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            margin-top: 0.5rem;
+        }
+
+        .audit-table th {
+            text-align: left;
+            padding: 0.5rem;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .audit-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header { padding: 0.85rem 1rem; }
+            .nav-status-group { display: none; }
+            .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .progress-flow { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>AI Business Operations Agent</h1>
-        <p class="subtitle">Automated order processing with AI decision-making</p>
+    <div class="ambient-glow"></div>
 
-        <div class="card">
-            <h2>System Status</h2>
-            <div class="health">
-                <div class="health-item">
-                    <span class="health-dot ok" id="deepseek-status"></span>
-                    <span>Deepseek LLM</span>
+    <!-- Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="/" class="brand-wrap">
+                <div class="brand-logo">A</div>
+                <div>
+                    <span class="brand-name">Aura Apparel</span>
+                    <span class="brand-badge">Autonomous Ops</span>
                 </div>
-                <div class="health-item">
-                    <span class="health-dot ok" id="telegram-status"></span>
-                    <span>Telegram</span>
+            </a>
+
+            <div class="nav-status-group">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span>DeepSeek LLM</span>
                 </div>
-                <div class="health-item">
-                    <span class="health-dot ok" id="sheets-status"></span>
-                    <span>Google Sheets</span>
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span>@business0psBot</span>
+                </div>
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span>Sheets Inventory</span>
+                </div>
+            </div>
+
+            <button class="btn-audit" onclick="openAuditModal()">
+                <span>📋</span>
+                <span>Audit Logs</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero: Conversational AI Order Bar -->
+        <section class="ai-order-banner">
+            <div class="banner-header">
+                <div>
+                    <h2 class="banner-title">
+                        <span>✨ Order with Autonomous AI</span>
+                    </h2>
+                    <p class="banner-subtitle">Natural language customer orders processed instantly by DeepSeek LLM & Telegram alerts</p>
+                </div>
+                <div class="customer-input-group">
+                    <span style="color: #64748b;">Customer:</span>
+                    <input type="text" id="customer-name" value="John Doe">
+                </div>
+            </div>
+
+            <div class="ai-input-bar">
+                <input type="text" id="order-input" placeholder="Type plain English order (e.g. 'I want 2 black Basic Shirts' or 'I need 12 shirts')...">
+                <button class="btn-process" id="process-btn" onclick="submitCustomOrder()">
+                    <span>Place Order</span>
+                    <span>→</span>
+                </button>
+            </div>
+
+            <!-- 1-Click Demo Scenarios -->
+            <div class="demo-presets-wrap">
+                <span class="presets-label">1-Click Demos:</span>
+                <button class="preset-btn" onclick="runPreset('I want 2 black Basic Shirts')">
+                    <span class="preset-tag tag-green"></span>
+                    <span>Scenario 1: Auto-Approve (2 Black Basic)</span>
+                </button>
+                <button class="preset-btn" onclick="runPreset('I need 12 black Basic Shirts')">
+                    <span class="preset-tag tag-amber"></span>
+                    <span>Scenario 2: Escalate Owner ($120 >= $100)</span>
+                </button>
+                <button class="preset-btn" onclick="runPreset('I want 25 black Basic Shirts')">
+                    <span class="preset-tag tag-purple"></span>
+                    <span>Scenario 3: Low Stock Alternative</span>
+                </button>
+                <button class="preset-btn" onclick="runPreset('Do you have blue jeans?')">
+                    <span class="preset-tag tag-blue"></span>
+                    <span>Scenario 4: Clarify Unknown SKU</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Product Catalog Header -->
+        <div class="section-header">
+            <div>
+                <h3 class="section-title">Store Catalog</h3>
+                <p class="catalog-badge">Live inventory synced with Google Sheets database</p>
+            </div>
+            <button class="btn-audit" onclick="loadProducts()">
+                <span>🔄</span>
+                <span>Refresh Stock</span>
+            </button>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="product-grid" id="products-container">
+            <!-- Rendered by JS -->
+        </div>
+    </main>
+
+    <!-- AI Decision Modal -->
+    <div class="modal-overlay" id="decision-modal">
+        <div class="decision-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span>🤖</span>
+                    <span>AI Operations Agent Decision</span>
+                </div>
+                <button class="modal-close" onclick="closeDecisionModal()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- 4 Step Pipeline -->
+                <div class="progress-flow">
+                    <div class="flow-step complete">
+                        <div class="flow-icon">📥</div>
+                        <div class="flow-label">1. Received</div>
+                    </div>
+                    <div class="flow-step complete">
+                        <div class="flow-icon">🧠</div>
+                        <div class="flow-label">2. AI Intent</div>
+                    </div>
+                    <div class="flow-step complete">
+                        <div class="flow-icon">📊</div>
+                        <div class="flow-label">3. Stock Checked</div>
+                    </div>
+                    <div class="flow-step complete">
+                        <div class="flow-icon">✈️</div>
+                        <div class="flow-label">4. Telegram Sent</div>
+                    </div>
+                </div>
+
+                <!-- Decision Banner -->
+                <div class="decision-badge-banner" id="decision-badge">
+                    <div class="decision-status-title" id="decision-title">
+                        <span>●</span>
+                        <span id="decision-status-text">APPROVED</span>
+                    </div>
+                    <span class="decision-order-id" id="decision-order-id">ORD-000000</span>
+                </div>
+
+                <!-- AI Reasoning -->
+                <div class="result-section">
+                    <div class="result-section-title">DeepSeek AI Decision Reasoning</div>
+                    <p class="reason-text" id="decision-reason">Analyzing order...</p>
+                </div>
+
+                <!-- Telegram Notification Preview -->
+                <div class="result-section">
+                    <div class="result-section-title">Telegram Live Message Preview (@business0psBot)</div>
+                    <div class="telegram-preview-box" id="telegram-preview">
+                        Sending notification...
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="card">
-            <h2>Process Customer Order</h2>
-            <div class="form-group">
-                <label for="customer">Customer Name</label>
-                <input type="text" id="customer" placeholder="John Doe" value="John Doe">
+    <!-- Audit Logs Modal -->
+    <div class="modal-overlay" id="audit-modal">
+        <div class="decision-modal" style="max-width: 680px;">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span>📋</span>
+                    <span>Google Sheets Audit Trail & Orders</span>
+                </div>
+                <button class="modal-close" onclick="closeAuditModal()">✕</button>
             </div>
-            <div class="form-group">
-                <label for="message">Customer Message</label>
-                <textarea id="message" placeholder="I want 2 black Basic Shirts"></textarea>
-            </div>
-            <button onclick="processOrder()" id="submit-btn">Process Order</button>
+            <div class="modal-body">
+                <div class="result-section">
+                    <div class="result-section-title">Recent Orders Table</div>
+                    <div style="overflow-x: auto;">
+                        <table class="audit-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                <tr><td colspan="5" style="text-align: center;">No orders recorded yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>AI is processing your order...</p>
-            </div>
-
-            <div class="result" id="result">
-                <h3>Result</h3>
-                <span class="status" id="result-status"></span>
-                <pre id="result-details"></pre>
+                <div class="result-section">
+                    <div class="result-section-title">Recent Activity Logs</div>
+                    <div style="overflow-x: auto;">
+                        <table class="audit-table">
+                            <thead>
+                                <tr>
+                                    <th>Log ID</th>
+                                    <th>Action</th>
+                                    <th>Order</th>
+                                    <th>Notified</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body">
+                                <tr><td colspan="4" style="text-align: center;">No activity logs yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Check health on load
-        fetch('/api/health')
-            .then(r => r.json())
-            .then(data => {
-                document.getElementById('deepseek-status').className = 'health-dot ' + (data.deepseek_configured ? 'ok' : 'fail');
-                document.getElementById('telegram-status').className = 'health-dot ' + (data.telegram_configured ? 'ok' : 'fail');
-                document.getElementById('sheets-status').className = 'health-dot ' + (data.sheets_configured ? 'ok' : 'fail');
-            });
+        // Shirt SVG Generators with exact variant colors
+        function getShirtSvg(variant) {
+            const colors = {
+                'black': '#1e293b',
+                'white': '#f8fafc',
+                'red': '#ef4444'
+            };
+            const v = (variant || 'black').toLowerCase();
+            const fill = colors[v] || '#334155';
+            const stroke = v === 'white' ? '#94a3b8' : 'rgba(255,255,255,0.15)';
 
-        async function processOrder() {
-            const message = document.getElementById('message').value;
-            const customer = document.getElementById('customer').value;
+            return `
+            <svg width="90" height="90" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M30 18 L40 28 C45 32 55 32 60 28 L70 18 L88 32 L78 46 L70 40 L70 85 L30 85 L30 40 L22 46 L12 32 Z" 
+                      fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M40 18 C45 25 55 25 60 18" stroke="${stroke}" stroke-width="2" fill="none"/>
+            </svg>`;
+        }
+
+        // Load Products from live backend
+        async function loadProducts() {
+            const container = document.getElementById('products-container');
+            try {
+                const res = await fetch('/api/products');
+                const products = await res.json();
+                
+                if (!products || products.length === 0) {
+                    container.innerHTML = '<p style="color:#64748b;">No products available.</p>';
+                    return;
+                }
+
+                container.innerHTML = products.map(p => {
+                    const isLow = p.Stock <= (p.Low_Stock_Threshold || 5);
+                    const stockTag = isLow 
+                        ? `<span class="card-stock-tag tag-low-stock">Low Stock: ${p.Stock}</span>`
+                        : `<span class="card-stock-tag tag-in-stock">In Stock: ${p.Stock}</span>`;
+
+                    return `
+                    <div class="product-card" id="card-${p.SKU}">
+                        <div class="card-img-wrap">
+                            ${stockTag}
+                            ${getShirtSvg(p.Variant)}
+                        </div>
+                        <span class="sku-code">${p.SKU}</span>
+                        <h4 class="product-title">${p.Product}</h4>
+                        <span class="product-variant">Color: ${p.Variant}</span>
+                        
+                        <div class="price-row">
+                            <span class="price-val">$${p.Price}</span>
+                            <span class="price-stock">${p.Stock} available</span>
+                        </div>
+
+                        <div class="card-actions">
+                            <div class="qty-stepper">
+                                <button class="qty-btn" onclick="changeQty('${p.SKU}', -1)">-</button>
+                                <span class="qty-display" id="qty-${p.SKU}">1</span>
+                                <button class="qty-btn" onclick="changeQty('${p.SKU}', 1)">+</button>
+                            </div>
+                            <button class="btn-quick-order" onclick="quickOrder('${p.Product}', '${p.Variant}', '${p.SKU}')">
+                                <span>⚡ Order</span>
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (err) {
+                console.error("Error loading products:", err);
+            }
+        }
+
+        function changeQty(sku, delta) {
+            const el = document.getElementById(`qty-${sku}`);
+            let val = parseInt(el.textContent) + delta;
+            if (val < 1) val = 1;
+            if (val > 50) val = 50;
+            el.textContent = val;
+        }
+
+        function quickOrder(product, variant, sku) {
+            const qty = document.getElementById(`qty-${sku}`).textContent;
+            const message = `I want ${qty} ${variant} ${product}`;
+            document.getElementById('order-input').value = message;
+            submitCustomOrder();
+        }
+
+        function runPreset(text) {
+            document.getElementById('order-input').value = text;
+            submitCustomOrder();
+        }
+
+        async function submitCustomOrder() {
+            const input = document.getElementById('order-input');
+            const message = input.value.trim();
+            const customer = document.getElementById('customer-name').value.trim() || 'Customer';
 
             if (!message) {
-                alert('Please enter a message');
+                input.focus();
                 return;
             }
 
-            const btn = document.getElementById('submit-btn');
-            const loading = document.getElementById('loading');
-            const result = document.getElementById('result');
-
+            const btn = document.getElementById('process-btn');
             btn.disabled = true;
-            loading.classList.add('show');
-            result.classList.remove('show');
+            btn.innerHTML = '<span>Processing...</span>';
 
             try {
-                const response = await fetch('/api/process', {
+                const res = await fetch('/api/process', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message, customer }),
+                    body: JSON.stringify({ message, customer })
                 });
-
-                const data = await response.json();
-
-                loading.classList.remove('show');
-                result.classList.add('show');
-
-                const statusEl = document.getElementById('result-status');
-                statusEl.textContent = data.status.toUpperCase();
-                statusEl.className = 'status status-' + data.status;
-
-                document.getElementById('result-details').textContent = JSON.stringify(data, null, 2);
+                const data = await res.json();
+                
+                showDecisionModal(data, message, customer);
+                loadProducts(); // Refresh stock counts visually on cards
             } catch (err) {
-                loading.classList.remove('show');
-                alert('Error: ' + err.message);
+                alert("Error processing order: " + err);
             } finally {
                 btn.disabled = false;
+                btn.innerHTML = '<span>Place Order</span><span>→</span>';
             }
         }
+
+        function showDecisionModal(data, originalMessage, customer) {
+            const modal = document.getElementById('decision-modal');
+            const badge = document.getElementById('decision-badge');
+            const statusText = document.getElementById('decision-status-text');
+            const orderIdText = document.getElementById('decision-order-id');
+            const reasonText = document.getElementById('decision-reason');
+            const telegramPreview = document.getElementById('telegram-preview');
+
+            const status = (data.status || 'unknown').toLowerCase();
+            badge.className = `decision-badge-banner decision-${status}`;
+            statusText.textContent = status.replace('_', ' ').toUpperCase();
+            orderIdText.textContent = data.order_id || 'ORD-N/A';
+
+            let desc = '';
+            let tele = '';
+
+            if (status === 'approved') {
+                desc = `Order was autonomously approved. Total value is $${data.total}, which is below the $100 escalation threshold, and inventory stock is sufficient. Stock has been deducted and an order record was written to Google Sheets.`;
+                tele = `✅ Order Approved\n\nOrder: ${data.order_id}\nTotal: $${data.total}\nYour order has been approved and is being processed!`;
+            } else if (status === 'escalated') {
+                desc = `Order value is $${data.total} (>= $100 threshold). Per business rules, high-value orders require human verification. An escalation alert has been dispatched to the business owner via Telegram.`;
+                tele = `⚠️ Order Escalation Alert\n\nOrder: ${data.order_id}\nCustomer: ${customer}\nValue: $${data.total}\nPlease review and approve/reject.`;
+            } else if (status === 'alternative_suggested') {
+                desc = `Requested quantity exceeds available stock. The AI agent autonomously searched inventory for matching alternative variants and formulated a substitute offer without prematurely deducting stock.`;
+                tele = `📦 Order Update — ${data.order_id}\n\nWe are low on stock for your requested item.\nWe can fulfill your order with substitute variants!\nTotal: $${data.total}\nReply YES to confirm.`;
+            } else {
+                desc = `Product was not found or details were incomplete. The AI agent autonomously paused fulfillment and asked the customer for clarification.`;
+                tele = `❓ Order Update — ${data.order_id}\n\nWe need more information to process your request.\nPlease provide more details.`;
+            }
+
+            reasonText.textContent = desc;
+            telegramPreview.textContent = tele;
+
+            modal.classList.add('active');
+        }
+
+        function closeDecisionModal() {
+            document.getElementById('decision-modal').classList.remove('active');
+        }
+
+        async function openAuditModal() {
+            const modal = document.getElementById('audit-modal');
+            modal.classList.add('active');
+
+            try {
+                const [ordersRes, logsRes] = await Promise.all([
+                    fetch('/api/orders'),
+                    fetch('/api/logs')
+                ]);
+                const orders = await ordersRes.json();
+                const logs = await logsRes.json();
+
+                const ordersTbody = document.getElementById('orders-table-body');
+                if (orders && orders.length > 0) {
+                    ordersTbody.innerHTML = orders.slice(-8).reverse().map(o => `
+                        <tr>
+                            <td style="font-family:'JetBrains Mono'; color:#60a5fa;">${o.order_id}</td>
+                            <td>${o.customer}</td>
+                            <td>${o.product} (${o.variant || 'N/A'}) x${o.quantity}</td>
+                            <td style="font-weight:700; color:white;">$${o.total_value}</td>
+                            <td><span style="padding:2px 6px; border-radius:4px; font-size:0.7rem; background:#065f46; color:#6ee7b7;">${o.status}</span></td>
+                        </tr>
+                    `).join('');
+                }
+
+                const logsTbody = document.getElementById('logs-table-body');
+                if (logs && logs.length > 0) {
+                    logsTbody.innerHTML = logs.slice(-8).reverse().map(l => `
+                        <tr>
+                            <td style="font-family:'JetBrains Mono';">${l.log_id}</td>
+                            <td style="font-weight:600; color:#e2e8f0;">${l.action}</td>
+                            <td style="font-family:'JetBrains Mono';">${l.order_id}</td>
+                            <td>Cust: ${l.customer_notified} / Owner: ${l.owner_notified}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Error loading audit data:", err);
+            }
+        }
+
+        function closeAuditModal() {
+            document.getElementById('audit-modal').classList.remove('active');
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDecisionModal();
+                closeAuditModal();
+            }
+        });
+
+        // Initial Load
+        loadProducts();
     </script>
 </body>
 </html>
