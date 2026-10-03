@@ -145,7 +145,7 @@ def build_word_report():
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_before = Pt(0)
     p_title.paragraph_format.space_after = Pt(2)
-    r_title = p_title.add_run("AI Small Business Operations Agent")
+    r_title = p_title.add_run("AURA POS — AI Smart Retail & Operations Terminal")
     r_title.font.size = Pt(24)
     r_title.font.bold = True
     r_title.font.color.rgb = C_PRIMARY
@@ -153,7 +153,7 @@ def build_word_report():
     p_sub = doc.add_paragraph()
     p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_sub.paragraph_format.space_after = Pt(16)
-    r_sub = p_sub.add_run("Autonomous Order Processing, Multi-Path AI Decision Routing, and Automated Operations\nAssignment Submission Report")
+    r_sub = p_sub.add_run("Autonomous Conversational Checkout, Multi-Path AI Decision Routing, and Automated Operations\nAssignment Submission Report")
     r_sub.font.size = Pt(11)
     r_sub.font.color.rgb = C_MUTED
 
@@ -189,33 +189,33 @@ def build_word_report():
     h1.paragraph_format.space_after = Pt(6)
 
     doc.add_paragraph(
-        "Small-to-medium retail and e-commerce businesses frequently struggle with managing customer orders, "
-        "stock level verification, customer inquiries, and order approvals through disjointed manual workflows. "
-        "Store owners and support staff typically read each incoming message by hand, manually inspect spreadsheet "
-        "inventory, calculate totals, decide fulfillment options, and formulate individual response messages."
+        "Small-to-medium retail shops, boutique stores, and counter sales operations frequently struggle with managing customer transactions, "
+        "shelf stock level verification, customer inquiries, and order approval governance through disjointed manual workflows. "
+        "Store cashiers and staff typically ring up or take phone orders manually, cross-reference spreadsheet inventory by hand, "
+        "manually check whether high-value purchases require manager override approval, and struggle to coordinate out-of-stock color variants on the fly."
     )
 
     doc.add_paragraph(
-        "This manual mode of operation introduces severe operational friction:"
+        "This manual mode of counter and sales operation introduces severe operational friction:"
     )
 
     p_pts = doc.add_paragraph()
     p_pts.paragraph_format.left_indent = Inches(0.25)
     p_pts.paragraph_format.space_after = Pt(4)
-    p_pts.add_run("• Delayed Customer Response Times: ").bold = True
-    p_pts.add_run("Manual handling causes response bottlenecks, especially outside business hours, leading to abandoned inquiries and lost revenue.\n")
-    p_pts.add_run("• Stock Inaccuracies & Overselling: ").bold = True
-    p_pts.add_run("Manual coordination between chat platforms and inventory spreadsheets causes stock desynchronization, resulting in oversold items and customer dissatisfaction.\n")
-    p_pts.add_run("• Inconsistent Business Decision-Making: ").bold = True
-    p_pts.add_run("Staff members apply discount rules, escalation thresholds, and substitution criteria inconsistently across channels.\n")
-    p_pts.add_run("• High Human Overhead on Low-Value Tasks: ").bold = True
-    p_pts.add_run("Routine tasks (checking stock for a t-shirt or calculating order totals) consume hours of manual labor that could be automated autonomously.")
+    p_pts.add_run("• Slow Checkout & Phone Order Ring-Up: ").bold = True
+    p_pts.add_run("Cashiers spend precious minutes manually deciphering customer requests, typing SKUs, and checking shelf counts, causing customer queues at the counter.\n")
+    p_pts.add_run("• Stock Inaccuracies & Shelf Desynchronization: ").bold = True
+    p_pts.add_run("Discrepancies between physical shelf stock and central inventory sheets cause stockouts and overselling during peak hours.\n")
+    p_pts.add_run("• Inconsistent Manager Approval Governance: ").bold = True
+    p_pts.add_run("Staff members apply discount rules, high-ticket escalation thresholds, and substitution criteria inconsistently across shifts.\n")
+    p_pts.add_run("• High Friction on Product Substitutions: ").bold = True
+    p_pts.add_run("When a customer requests an out-of-stock color or size, staff rarely have instant visibility into backstock alternatives, leading to abandoned sales.")
 
     add_callout(
         doc,
-        "Target Real-World Problem: Manual small-business operations suffer from delayed order fulfillment, stock desynchronization, "
-        "and human error. An intelligent autonomous AI agent is needed to bridge natural customer communications, live inventory, "
-        "business rules, and instant multi-party notifications with zero manual data entry.",
+        "Target Real-World Problem: Manual retail point-of-sale and counter operations suffer from delayed order fulfillment, stock desynchronization, "
+        "and human error. An intelligent autonomous AI POS terminal is needed to bridge natural customer communications, live shelf inventory, "
+        "business rules (e.g. Manager Override for >= $100), and instant multi-party alerts with zero manual data entry.",
         title="Problem Definition Summary"
     )
 
@@ -229,10 +229,10 @@ def build_word_report():
     h2.paragraph_format.space_after = Pt(6)
 
     doc.add_paragraph(
-        "We propose the AI Small Business Operations Agent — an autonomous end-to-end intelligent system designed to "
-        "receive conversational order requests, parse unstructured intent using the DeepSeek Large Language Model (deepseek-chat), "
-        "query real-time stock from Google Sheets, autonomously evaluate fulfillment rules, and route the workflow through five "
-        "distinct operational paths while sending real-time Telegram notifications."
+        "We propose AURA POS — an autonomous end-to-end AI Smart Retail and Order Operations Terminal designed to "
+        "receive conversational counter, phone, or messaging order requests, parse unstructured intent using the DeepSeek Large Language Model (deepseek-chat), "
+        "query real-time shelf stock from Google Sheets, autonomously evaluate fulfillment and governance rules (e.g., auto-approving small sales vs. escalating high-value orders for manager override), "
+        "and route the workflow through five distinct operational paths while sending real-time Telegram alerts and receipts."
     )
 
     doc.add_paragraph(
@@ -240,14 +240,14 @@ def build_word_report():
     )
     p_sol = doc.add_paragraph()
     p_sol.paragraph_format.left_indent = Inches(0.25)
-    p_sol.add_run("1. Conversational Understanding: ").bold = True
-    p_sol.add_run("Understands natural, unstructured customer phrasing (e.g., 'I want 2 black Basic Shirts' or 'Do you have blue jeans?') without strict forms.\n")
+    p_sol.add_run("1. Conversational POS Checkout: ").bold = True
+    p_sol.add_run("Understands natural, unstructured customer phrasing (e.g., 'Customer wants 2 black basic shirts' or '12 shirts for team event') without clunky catalog lookups.\n")
     p_sol.add_run("2. Real-Time Tool Integration: ").bold = True
-    p_sol.add_run("Integrates live Google Sheets API for inventory deduction, order logging, and audit tracking, and Telegram Bot API for customer confirmations and owner alerts.\n")
+    p_sol.add_run("Integrates live Google Sheets API for shelf inventory deduction, transaction logging, and register audit tracking, alongside Telegram Bot API for instant customer receipts and owner alerts.\n")
     p_sol.add_run("3. Multi-Path Autonomous Routing: ").bold = True
-    p_sol.add_run("Autonomously determines whether to auto-approve, escalate to human owner for approval, recommend alternative products when out of stock, clarify ambiguity, or reject.\n")
-    p_sol.add_run("4. Hybrid Orchestration: ").bold = True
-    p_sol.add_run("Can run as an n8n visual workflow orchestration or as a standalone Python application (CLI & Web UI) with in-memory resilient fallback.")
+    p_sol.add_run("Autonomously determines whether to auto-approve (<$100), escalate for Manager Override (>= $100), recommend alternative variants on stock-outs, clarify missing details, or reject.\n")
+    p_sol.add_run("4. Hybrid Terminal Orchestration: ").bold = True
+    p_sol.add_run("Can operate as an interactive POS Web Terminal (Flask UI), standalone Python CLI terminal, or enterprise n8n workflow graph with resilient zero-downtime offline fallback.")
 
     # ==========================================
     # 3. WORKFLOW DIAGRAM
@@ -354,12 +354,12 @@ def build_word_report():
     # Architecture Breakdown Table
     arch_table_data = [
         ("Tier / Component", "Technology Stack", "Role & Functional Responsibility"),
-        ("Client Entry Points", "Flask Web UI / CLI / Webhook", "Accepts natural language customer messages from browser, terminal, or API."),
+        ("Client Entry Points", "AURA POS Web Terminal / CLI / Webhook", "Accepts natural language orders from register screen, phone order desk, or API."),
         ("Agent Core & Router", "Python 3.10+ (agent.py)", "Coordinates 10-step pipeline, maintains state, applies business rules, and routes."),
         ("Reasoning & Decision Tier", "DeepSeek API (deepseek-chat)", "OpenAI-compatible LLM endpoint executing intent extraction and fulfillment logic."),
         ("Data Persistence Tier", "Google Sheets API (gspread)", "Multi-sheet relational database (Products, Orders, Customers, Logs)."),
         ("Resilient Fallback", "In-Memory Mock Database", "Provides zero-downtime offline execution if Google Cloud credentials are unavailable."),
-        ("Notification Tier", "Telegram Bot API (@business0psBot)", "Dispatches instant alerts and proposals to customer and owner chat IDs."),
+        ("Notification Tier", "Telegram Bot API (@business0psBot)", "Dispatches instant digital receipts to customer and manager escalation alerts to owner."),
     ]
 
     arch_tbl = doc.add_table(rows=len(arch_table_data), cols=3)
@@ -405,10 +405,10 @@ def build_word_report():
     tools_data = [
         ("Service Name", "Category", "Model / Protocol", "Detailed Role in Solution"),
         ("DeepSeek API", "LLM Reasoning", "deepseek-chat (V3)", "Performs structured intent extraction and decision reasoning using temperature=0.1."),
-        ("Google Sheets API", "Database / Storage", "REST / gspread / OAuth2", "Provides persistent tables for Products, Orders, Customers, and Logs."),
-        ("Telegram Bot API", "Messaging / Alerts", "HTTP Bot API (@business0psBot)", "Delivers real-time customer confirmations and escalation alerts to owner chat."),
-        ("n8n Orchestration", "Workflow Engine", "v2.8.4 Node Graph", "Visual node-based workflow alternative for enterprise automation environments."),
-        ("Flask Web Framework", "Web Interface", "WSGI / HTML5 / JS", "Lightweight browser interface providing live status indicators and test buttons."),
+        ("Google Sheets API", "Database / Storage", "REST / gspread / OAuth2", "Provides persistent tables for Products shelf inventory, Orders, Customers, and Logs."),
+        ("Telegram Bot API", "Messaging / Alerts", "HTTP Bot API (@business0psBot)", "Delivers real-time customer receipts and manager override alerts to owner chat."),
+        ("n8n Orchestration", "Workflow Engine", "v2.8.4 Node Graph", "Visual node-based workflow alternative for enterprise retail automation environments."),
+        ("Flask Web Framework", "POS Web Terminal", "WSGI / HTML5 / JS", "AURA POS cashier terminal interface featuring one-click presets, shelf stock, and live status."),
     ]
 
     tools_tbl = doc.add_table(rows=len(tools_data), cols=4)
@@ -449,11 +449,11 @@ def build_word_report():
     # Business Rules Table
     rules_data = [
         ("Rule ID", "Rule Name", "Condition Logic", "Autonomous Action", "Priority"),
-        ("R001", "Auto-approve low value", "total_value < $100 AND stock >= quantity", "approve", "Priority 1"),
-        ("R002", "Escalate high value", "total_value >= $100 AND stock sufficient", "escalate", "Priority 2"),
-        ("R003", "Suggest alternative", "stock < quantity AND alternative variant exists", "suggest_alternative", "Priority 3"),
-        ("R004", "Reject unavailable", "stock < quantity AND no alternative exists", "reject", "Priority 4"),
-        ("R005", "Clarify missing info", "product not found OR quantity ambiguous", "clarify", "Priority 5"),
+        ("R001", "Auto-approve low value", "total_value < $100 AND stock >= quantity", "approve (Fast POS Sale)", "Priority 1"),
+        ("R002", "Manager Override", "total_value >= $100 AND stock sufficient", "escalate (Manager Alert)", "Priority 2"),
+        ("R003", "Suggest alternative", "stock < quantity AND alternative variant exists", "suggest_alternative (Shelf Stock-Out)", "Priority 3"),
+        ("R004", "Reject unavailable", "stock < quantity AND no alternative exists", "reject (Unfulfillable)", "Priority 4"),
+        ("R005", "Clarify missing info", "product not found OR quantity ambiguous", "clarify (Catalog Inquiry)", "Priority 5"),
     ]
 
     rules_tbl = doc.add_table(rows=len(rules_data), cols=5)
@@ -497,11 +497,11 @@ def build_word_report():
     )
 
     screenshots_to_add = [
-        ("01_web_ui_dashboard.png", "Figure 3: Web Dashboard with live DeepSeek, Telegram, and Sheets health indicators"),
-        ("02_scenario_auto_approve.png", "Figure 4: Scenario 1 — Auto-Approval for order under $100 with stock deduction"),
-        ("03_scenario_escalate.png", "Figure 5: Scenario 2 — Autonomous Escalation to Owner for high-value order ($120 >= $100)"),
-        ("04_scenario_alternative.png", "Figure 6: Scenario 3 — Autonomous Suggestion of alternative variants on low stock"),
-        ("05_scenario_clarify.png", "Figure 7: Scenario 4 — Clarification Request triggered when an item is not found"),
+        ("01_web_ui_dashboard.png", "Figure 3: AURA POS Smart Terminal Dashboard with live DeepSeek, Telegram, and Sheets health indicators"),
+        ("02_scenario_auto_approve.png", "Figure 4: Scenario 1 — Fast POS Checkout (Auto-Approval under $100 with immediate shelf stock deduction)"),
+        ("03_scenario_escalate.png", "Figure 5: Scenario 2 — Manager Override Escalation to Store Owner for high-value sale ($120 >= $100)"),
+        ("04_scenario_alternative.png", "Figure 6: Scenario 3 — Autonomous Variant Suggestion triggered when shelf stock is insufficient"),
+        ("05_scenario_clarify.png", "Figure 7: Scenario 4 — Clarification Request triggered when an unrecognized item is requested at the register"),
     ]
 
     for img_name, caption in screenshots_to_add:
@@ -547,7 +547,7 @@ def build_word_report():
     )
 
     # Scenario 1
-    doc.add_heading(level=2).add_run("Scenario 1: Normal Order (Auto-Approve Flow)")
+    doc.add_heading(level=2).add_run("Scenario 1: Fast Sale Checkout (Auto-Approve Flow)")
     doc.add_paragraph("Customer: John Doe | Input Message: \"I want 2 black Basic Shirts\"")
     add_code_block(doc,
 """Step 1 (Intent Extraction):
@@ -562,7 +562,7 @@ Step 4 (Execution & Output):
 Output JSON: {"status": "approved", "order_id": "ORD-B94D74AD", "total": 20}""")
 
     # Scenario 2
-    doc.add_heading(level=2).add_run("Scenario 2: Large Order (Autonomous Escalation Flow)")
+    doc.add_heading(level=2).add_run("Scenario 2: High-Value Counter Order (Manager Override Escalation Flow)")
     doc.add_paragraph("Customer: Jane Smith | Input Message: \"I need 12 black Basic Shirts\"")
     add_code_block(doc,
 """Step 1 (Intent Extraction):
@@ -578,7 +578,7 @@ Step 4 (Execution & Output):
 Output JSON: {"status": "escalated", "order_id": "ORD-1434B6E7", "total": 120}""")
 
     # Scenario 3
-    doc.add_heading(level=2).add_run("Scenario 3: Insufficient Stock (Autonomous Suggestion Flow)")
+    doc.add_heading(level=2).add_run("Scenario 3: Insufficient Shelf Stock (Autonomous Variant Suggestion Flow)")
     doc.add_paragraph("Customer: Bob Wilson | Input Message: \"I want 25 black Basic Shirts\"")
     add_code_block(doc,
 """Step 1 (Intent Extraction):
@@ -595,7 +595,7 @@ Step 4 (Execution & Output):
 Output JSON: {"status": "alternative_suggested", "order_id": "ORD-02692FB9", "total": 250}""")
 
     # Scenario 4
-    doc.add_heading(level=2).add_run("Scenario 4: Unknown Product (Clarification Flow)")
+    doc.add_heading(level=2).add_run("Scenario 4: Unrecognized Item / SKU (Clarification Flow)")
     doc.add_paragraph("Customer: Alice Brown | Input Message: \"Do you have blue jeans?\"")
     add_code_block(doc,
 """Step 1 (Intent Extraction):
@@ -627,11 +627,11 @@ Output JSON: {"status": "clarify", "order_id": "ORD-82D6DABA"}""")
         doc,
         "Public Video URL: [PASTE YOUR PUBLIC VIDEO LINK HERE - e.g., YouTube Unlisted, Loom, or Google Drive URL]\n\n"
         "Demo Content Covered in Video:\n"
-        "1. Overview of the problem and architecture.\n"
-        "2. Live execution in Web UI (http://localhost:5000) and CLI (python agent.py).\n"
-        "3. Live Telegram bot (@business0psBot) alerts popping up for both Customer and Owner.\n"
-        "4. Demonstration of autonomous branching: Auto-approval (<$100), Escalation (>=$100), Alternative suggestion, and Clarification.\n"
-        "5. Inspection of Google Sheets records (Products, Orders, Customers, and audit Logs).",
+        "1. Overview of the retail POS problem and autonomous architecture.\n"
+        "2. Live transaction ring-up in AURA POS Web Terminal (http://localhost:5000) and CLI (python agent.py).\n"
+        "3. Live Telegram bot (@business0psBot) alerts popping up for Customer digital receipts and Manager Escalation approvals.\n"
+        "4. Demonstration of autonomous 5-way branching: Fast Sale (<$100), Manager Override (>=$100), Alternative suggestion, and Clarification.\n"
+        "5. Inspection of Google Sheets records (Products shelf counts, Orders register, Customers, and audit Logs).",
         title="Public Video Demo Link (Clickable)",
         border_hex="D97706",
         bg_hex="FFFBEB"
@@ -655,7 +655,7 @@ Output JSON: {"status": "clarify", "order_id": "ORD-82D6DABA"}""")
         "GitHub Public Repository:\nhttps://github.com/mengchheanglong/business-operations-agent\n\n"
         "Repository Structure:\n"
         "• agent.py - Main autonomous AI operations agent with DeepSeek & Telegram integration\n"
-        "• web_app.py & templates/index.html - Interactive browser testing dashboard\n"
+        "• web_app.py & templates/index.html - Interactive AURA POS Smart Terminal web application\n"
         "• demo.py & demo/demo-results.json - Multi-path test suite and recorded outputs\n"
         "• workflows/order-agent-workflow.json - 17-node n8n orchestration workflow template\n"
         "• workflows/setup-sheets-workflow.json - Google Sheets automated initialization template\n"
@@ -700,7 +700,7 @@ python demo.py""")
 
     matrix_data = [
         ("Criterion", "Assignment Minimum", "Implemented in This Project", "Compliance"),
-        ("Problem Scope", "Clearly defined real-world problem", "Small business retail order & inventory management", "MET (100%)"),
+        ("Problem Scope", "Clearly defined real-world problem", "Retail POS terminal & small business inventory operations", "MET (100%)"),
         ("LLM Reasoning", "Required for decisions", "DeepSeek LLM (deepseek-chat) for intent & action reasoning", "MET (100%)"),
         ("External Tools", ">= 2 external tools/services", "4 services: Google Sheets, Telegram Bot, DeepSeek, n8n", "EXCEEDED (4 tools)"),
         ("Workflow Steps", ">= 5 steps", "10 sequential operational steps", "EXCEEDED (10 steps)"),

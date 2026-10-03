@@ -187,14 +187,24 @@ def generate_architecture_diagram():
 
 
 def capture_web_ui():
-    """Run Flask server in thread and capture UI states with Playwright."""
+    """Capture UI states with Playwright (connects to existing server or launches one)."""
+    import urllib.request
     from playwright.sync_api import sync_playwright
-    from web_app import app
 
-    server = threading.Thread(target=lambda: app.run(port=5000, debug=False, use_reloader=False))
-    server.daemon = True
-    server.start()
-    time.sleep(1.5)  # Wait for server
+    server_running = False
+    try:
+        urllib.request.urlopen("http://127.0.0.1:5000/api/health", timeout=1)
+        server_running = True
+        print("Connected to existing web server on port 5000")
+    except Exception:
+        pass
+
+    if not server_running:
+        from web_app import app
+        server = threading.Thread(target=lambda: app.run(port=5000, debug=False, use_reloader=False))
+        server.daemon = True
+        server.start()
+        time.sleep(1.5)
 
     with sync_playwright() as p:
         browser = p.chromium.launch()

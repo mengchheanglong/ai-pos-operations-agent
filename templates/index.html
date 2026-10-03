@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Apparel & Co. — AI Autonomous Operations Demo</title>
+    <title>AURA POS — AI Smart Retail & Order Terminal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-body: #090d16;
@@ -48,25 +48,25 @@
             left: 50%;
             transform: translateX(-50%);
             width: 1000px;
-            height: 400px;
+            height: 380px;
             background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.05) 50%, transparent 70%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* Top Navigation Bar */
+        /* Top Navigation Bar / POS Register Header */
         header {
             position: sticky;
             top: 0;
             z-index: 40;
             backdrop-filter: blur(16px);
-            background: rgba(9, 13, 22, 0.85);
+            background: rgba(9, 13, 22, 0.9);
             border-bottom: 1px solid var(--border);
-            padding: 0.85rem 2rem;
+            padding: 0.75rem 2rem;
         }
 
         .nav-container {
-            max-width: 1200px;
+            max-width: 1240px;
             margin: 0 auto;
             display: flex;
             align-items: center;
@@ -86,13 +86,13 @@
             width: 38px;
             height: 38px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             display: grid;
             place-items: center;
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             color: white;
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
         }
 
         .brand-name {
@@ -104,23 +104,24 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .brand-badge {
-            font-size: 0.65rem;
+        .register-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             padding: 2px 7px;
             border-radius: 6px;
-            background: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            margin-left: 0.3rem;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            margin-left: 0.35rem;
         }
 
         .nav-status-group {
             display: flex;
             align-items: center;
-            gap: 0.85rem;
+            gap: 0.75rem;
         }
 
         .status-pill {
@@ -129,9 +130,9 @@
             gap: 0.45rem;
             background: var(--bg-surface);
             border: 1px solid var(--border);
-            padding: 0.35rem 0.75rem;
+            padding: 0.3rem 0.7rem;
             border-radius: 9999px;
-            font-size: 0.75rem;
+            font-size: 0.73rem;
             font-weight: 600;
             color: var(--text-secondary);
         }
@@ -169,34 +170,34 @@
             background: #1e293b;
         }
 
-        /* Main Layout */
+        /* Main POS Workspace */
         main {
             position: relative;
             z-index: 10;
-            max-width: 1200px;
+            max-width: 1240px;
             margin: 0 auto;
-            padding: 2rem 1.5rem 4rem;
+            padding: 1.75rem 1.5rem 4rem;
         }
 
-        /* Hero / AI Order Banner */
-        .ai-order-banner {
+        /* POS Terminal Control Banner */
+        .pos-banner {
             background: linear-gradient(145deg, #131d2e 0%, #172438 100%);
             border: 1px solid rgba(59, 130, 246, 0.35);
             border-radius: var(--radius-lg);
-            padding: 2rem;
-            margin-bottom: 2.5rem;
+            padding: 1.75rem 2rem;
+            margin-bottom: 2rem;
             box-shadow: var(--shadow-glow), var(--shadow-card);
             position: relative;
             overflow: hidden;
         }
 
-        .ai-order-banner::after {
+        .pos-banner::after {
             content: '';
             position: absolute;
             top: -50%;
             right: -20%;
-            width: 300px;
-            height: 300px;
+            width: 320px;
+            height: 320px;
             background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
             pointer-events: none;
         }
@@ -220,32 +221,40 @@
         }
 
         .banner-subtitle {
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             color: var(--text-secondary);
             margin-top: 0.2rem;
         }
 
-        .customer-input-group {
+        .operator-meta-group {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        .pos-meta-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
             background: var(--bg-surface);
             border: 1px solid var(--border);
             padding: 0.3rem 0.75rem;
             border-radius: var(--radius-sm);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
         }
-        .customer-input-group input {
+
+        .pos-meta-pill input {
             background: transparent;
             border: none;
             color: var(--text-primary);
-            font-size: 0.82rem;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-weight: 700;
             outline: none;
-            width: 110px;
+            width: 105px;
         }
 
-        /* Conversational Bar */
+        /* Conversational Ring-Up Bar */
         .ai-input-bar {
             display: flex;
             gap: 0.75rem;
@@ -305,8 +314,8 @@
         }
 
         .presets-label {
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.73rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-muted);
@@ -345,7 +354,7 @@
         .tag-purple { background: #8b5cf6; }
         .tag-blue { background: #3b82f6; }
 
-        /* Section Headings */
+        /* Catalog Section Header */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -369,7 +378,7 @@
         /* Product Cards Grid */
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem;
         }
@@ -391,13 +400,12 @@
             box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
         }
 
-        /* SVG Shirt Illustration */
         .card-img-wrap {
-            height: 150px;
+            height: 145px;
             border-radius: var(--radius-sm);
             display: grid;
             place-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.85rem;
             background: #0f172a;
             position: relative;
             overflow: hidden;
@@ -526,7 +534,7 @@
             color: white;
         }
 
-        /* Decision Modal */
+        /* Modal Slip Overlay */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -559,7 +567,7 @@
         }
 
         .modal-header {
-            padding: 1.25rem 1.5rem;
+            padding: 1.15rem 1.5rem;
             background: var(--bg-card);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -568,7 +576,7 @@
         }
 
         .modal-title {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -600,7 +608,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             position: relative;
         }
 
@@ -609,7 +617,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 0.6rem 0.3rem;
+            padding: 0.55rem 0.3rem;
             position: relative;
         }
 
@@ -620,11 +628,11 @@
 
         .flow-icon {
             font-size: 1rem;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.15rem;
         }
 
         .flow-label {
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 700;
             color: var(--text-secondary);
         }
@@ -635,7 +643,7 @@
 
         /* Decision Banner */
         .decision-badge-banner {
-            padding: 1rem;
+            padding: 0.9rem 1.15rem;
             border-radius: var(--radius-md);
             margin-bottom: 1.25rem;
             display: flex;
@@ -669,7 +677,7 @@
         }
 
         .decision-status-title {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -689,21 +697,21 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 1rem;
-            margin-bottom: 1rem;
+            padding: 0.9rem 1rem;
+            margin-bottom: 0.9rem;
         }
 
         .result-section-title {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-muted);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
         }
 
         .reason-text {
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             color: var(--text-secondary);
             line-height: 1.5;
         }
@@ -743,9 +751,8 @@
             color: var(--text-secondary);
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            header { padding: 0.85rem 1rem; }
+            header { padding: 0.75rem 1rem; }
             .nav-status-group { display: none; }
             .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
             .progress-flow { grid-template-columns: repeat(2, 1fr); }
@@ -755,14 +762,14 @@
 <body>
     <div class="ambient-glow"></div>
 
-    <!-- Navigation -->
+    <!-- POS Register Header -->
     <header>
         <div class="nav-container">
             <a href="/" class="brand-wrap">
-                <div class="brand-logo">A</div>
+                <div class="brand-logo">⚡</div>
                 <div>
-                    <span class="brand-name">Aura Apparel</span>
-                    <span class="brand-badge">Autonomous Ops</span>
+                    <span class="brand-name">AURA POS</span>
+                    <span class="register-badge">Terminal #01 Active</span>
                 </div>
             </a>
 
@@ -773,76 +780,82 @@
                 </div>
                 <div class="status-pill">
                     <span class="status-dot"></span>
-                    <span>@business0psBot</span>
+                    <span>Telegram Alerts</span>
                 </div>
                 <div class="status-pill">
                     <span class="status-dot"></span>
-                    <span>Sheets Inventory</span>
+                    <span>Live Sheets Inventory</span>
                 </div>
             </div>
 
             <button class="btn-audit" onclick="openAuditModal()">
-                <span>📋</span>
-                <span>Audit Logs</span>
+                <span>📊</span>
+                <span>Register Audit Log</span>
             </button>
         </div>
     </header>
 
     <main>
-        <!-- Hero: Conversational AI Order Bar -->
-        <section class="ai-order-banner">
+        <!-- POS Conversational Order Console -->
+        <section class="pos-banner">
             <div class="banner-header">
                 <div>
                     <h2 class="banner-title">
-                        <span>✨ Order with Autonomous AI</span>
+                        <span>⚡ Conversational AI POS & Fast Checkout</span>
                     </h2>
-                    <p class="banner-subtitle">Natural language customer orders processed instantly by DeepSeek LLM & Telegram alerts</p>
+                    <p class="banner-subtitle">Process counter sales, phone orders, and messaging requests in natural language with automated rules and alerts</p>
                 </div>
-                <div class="customer-input-group">
-                    <span style="color: #64748b;">Customer:</span>
-                    <input type="text" id="customer-name" value="John Doe">
+                <div class="operator-meta-group">
+                    <div class="pos-meta-pill">
+                        <span style="color: #64748b;">Clerk:</span>
+                        <strong style="color: #cbd5e1;">Mengchheang</strong>
+                    </div>
+                    <div class="pos-meta-pill">
+                        <span style="color: #64748b;">Customer:</span>
+                        <input type="text" id="customer-name" value="John Doe">
+                    </div>
                 </div>
             </div>
 
             <div class="ai-input-bar">
-                <input type="text" id="order-input" placeholder="Type plain English order (e.g. 'I want 2 black Basic Shirts' or 'I need 12 shirts')...">
+                <input type="text" id="order-input" placeholder="Type plain English order or scan request (e.g. 'Customer wants 2 black basic shirts' or '12 shirts for team')...">
                 <button class="btn-process" id="process-btn" onclick="submitCustomOrder()">
-                    <span>Place Order</span>
+                    <span>Process Order</span>
                     <span>→</span>
                 </button>
             </div>
 
-            <!-- 1-Click Demo Scenarios -->
+            <!-- Quick Ring-Up Presets (1-Click Demo Scenarios) -->
             <div class="demo-presets-wrap">
-                <span class="presets-label">1-Click Demos:</span>
+                <span class="presets-label">Quick POS Presets:</span>
                 <button class="preset-btn" onclick="runPreset('I want 2 black Basic Shirts')">
                     <span class="preset-tag tag-green"></span>
-                    <span>Scenario 1: Auto-Approve (2 Black Basic)</span>
+                    <span>Quick Sale: 2 Black Basic (Auto-Approve &lt;$100)</span>
                 </button>
                 <button class="preset-btn" onclick="runPreset('I need 12 black Basic Shirts')">
                     <span class="preset-tag tag-amber"></span>
-                    <span>Scenario 2: Escalate Owner ($120 >= $100)</span>
+                    <span>Manager Override: 12 Black ($120 &ge; $100)</span>
                 </button>
                 <button class="preset-btn" onclick="runPreset('I want 25 black Basic Shirts')">
                     <span class="preset-tag tag-purple"></span>
-                    <span>Scenario 3: Low Stock Alternative</span>
+                    <span>Stock-Out Alt: 25 Black (Suggest White/Red)</span>
                 </button>
                 <button class="preset-btn" onclick="runPreset('Do you have blue jeans?')">
                     <span class="preset-tag tag-blue"></span>
-                    <span>Scenario 4: Clarify Unknown SKU</span>
+                    <span>Catalog Inquiry: Blue Jeans (Clarify)</span>
                 </button>
             </div>
         </section>
 
-        <!-- Product Catalog Header -->
+        <!-- Shelf Inventory Catalog -->
         <div class="section-header">
             <div>
-                <h3 class="section-title">Store Catalog</h3>
-                <p class="catalog-badge">Live inventory synced with Google Sheets database</p>
+                <h3 class="section-title">Store Shelf Inventory</h3>
+                <p class="catalog-badge">Real-time inventory levels synced with Google Sheets register</p>
             </div>
             <button class="btn-audit" onclick="loadProducts()">
                 <span>🔄</span>
-                <span>Refresh Stock</span>
+                <span>Refresh Register Stock</span>
             </button>
         </div>
 
@@ -852,13 +865,13 @@
         </div>
     </main>
 
-    <!-- AI Decision Modal -->
+    <!-- AI POS Transaction Slip Modal -->
     <div class="modal-overlay" id="decision-modal">
         <div class="decision-modal">
             <div class="modal-header">
                 <div class="modal-title">
-                    <span>🤖</span>
-                    <span>AI Operations Agent Decision</span>
+                    <span>🧾</span>
+                    <span>AI POS Transaction Receipt &amp; Decision</span>
                 </div>
                 <button class="modal-close" onclick="closeDecisionModal()">✕</button>
             </div>
@@ -868,23 +881,23 @@
                 <div class="progress-flow">
                     <div class="flow-step complete">
                         <div class="flow-icon">📥</div>
-                        <div class="flow-label">1. Received</div>
+                        <div class="flow-label">1. Request Received</div>
                     </div>
                     <div class="flow-step complete">
                         <div class="flow-icon">🧠</div>
-                        <div class="flow-label">2. AI Intent</div>
+                        <div class="flow-label">2. AI Intent Parsed</div>
                     </div>
                     <div class="flow-step complete">
                         <div class="flow-icon">📊</div>
-                        <div class="flow-label">3. Stock Checked</div>
+                        <div class="flow-label">3. Stock Verified</div>
                     </div>
                     <div class="flow-step complete">
                         <div class="flow-icon">✈️</div>
-                        <div class="flow-label">4. Telegram Sent</div>
+                        <div class="flow-label">4. Telegram Dispatched</div>
                     </div>
                 </div>
 
-                <!-- Decision Banner -->
+                <!-- Decision Status Banner -->
                 <div class="decision-badge-banner" id="decision-badge">
                     <div class="decision-status-title" id="decision-title">
                         <span>●</span>
@@ -893,7 +906,7 @@
                     <span class="decision-order-id" id="decision-order-id">ORD-000000</span>
                 </div>
 
-                <!-- AI Reasoning -->
+                <!-- AI Decision Reasoning -->
                 <div class="result-section">
                     <div class="result-section-title">DeepSeek AI Decision Reasoning</div>
                     <p class="reason-text" id="decision-reason">Analyzing order...</p>
@@ -910,19 +923,19 @@
         </div>
     </div>
 
-    <!-- Audit Logs Modal -->
+    <!-- Register Audit Log Modal -->
     <div class="modal-overlay" id="audit-modal">
         <div class="decision-modal" style="max-width: 680px;">
             <div class="modal-header">
                 <div class="modal-title">
-                    <span>📋</span>
-                    <span>Google Sheets Audit Trail & Orders</span>
+                    <span>📊</span>
+                    <span>Register Shift Log &amp; Transaction Audit Trail</span>
                 </div>
                 <button class="modal-close" onclick="closeAuditModal()">✕</button>
             </div>
             <div class="modal-body">
                 <div class="result-section">
-                    <div class="result-section-title">Recent Orders Table</div>
+                    <div class="result-section-title">Completed Orders Table (Google Sheets Orders Tab)</div>
                     <div style="overflow-x: auto;">
                         <table class="audit-table">
                             <thead>
@@ -942,15 +955,15 @@
                 </div>
 
                 <div class="result-section">
-                    <div class="result-section-title">Recent Activity Logs</div>
+                    <div class="result-section-title">Terminal Activity Log (Google Sheets Logs Tab)</div>
                     <div style="overflow-x: auto;">
                         <table class="audit-table">
                             <thead>
                                 <tr>
                                     <th>Log ID</th>
                                     <th>Action</th>
-                                    <th>Order</th>
-                                    <th>Notified</th>
+                                    <th>Order ID</th>
+                                    <th>Alert Dispatched</th>
                                 </tr>
                             </thead>
                             <tbody id="logs-table-body">
@@ -964,7 +977,6 @@
     </div>
 
     <script>
-        // Shirt SVG Generators with exact variant colors
         function getShirtSvg(variant) {
             const colors = {
                 'black': '#1e293b',
@@ -976,14 +988,13 @@
             const stroke = v === 'white' ? '#94a3b8' : 'rgba(255,255,255,0.15)';
 
             return `
-            <svg width="90" height="90" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="86" height="86" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M30 18 L40 28 C45 32 55 32 60 28 L70 18 L88 32 L78 46 L70 40 L70 85 L30 85 L30 40 L22 46 L12 32 Z" 
                       fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
                 <path d="M40 18 C45 25 55 25 60 18" stroke="${stroke}" stroke-width="2" fill="none"/>
             </svg>`;
         }
 
-        // Load Products from live backend
         async function loadProducts() {
             const container = document.getElementById('products-container');
             try {
@@ -991,7 +1002,7 @@
                 const products = await res.json();
                 
                 if (!products || products.length === 0) {
-                    container.innerHTML = '<p style="color:#64748b;">No products available.</p>';
+                    container.innerHTML = '<p style="color:#64748b;">No products found in register database.</p>';
                     return;
                 }
 
@@ -1013,7 +1024,7 @@
                         
                         <div class="price-row">
                             <span class="price-val">$${p.Price}</span>
-                            <span class="price-stock">${p.Stock} available</span>
+                            <span class="price-stock">${p.Stock} on shelf</span>
                         </div>
 
                         <div class="card-actions">
@@ -1023,7 +1034,7 @@
                                 <button class="qty-btn" onclick="changeQty('${p.SKU}', 1)">+</button>
                             </div>
                             <button class="btn-quick-order" onclick="quickOrder('${p.Product}', '${p.Variant}', '${p.SKU}')">
-                                <span>⚡ Order</span>
+                                <span>⚡ Ring Up</span>
                             </button>
                         </div>
                     </div>`;
@@ -1065,7 +1076,7 @@
 
             const btn = document.getElementById('process-btn');
             btn.disabled = true;
-            btn.innerHTML = '<span>Processing...</span>';
+            btn.innerHTML = '<span>Processing POS...</span>';
 
             try {
                 const res = await fetch('/api/process', {
@@ -1076,12 +1087,12 @@
                 const data = await res.json();
                 
                 showDecisionModal(data, message, customer);
-                loadProducts(); // Refresh stock counts visually on cards
+                loadProducts(); // Update shelf stock immediately
             } catch (err) {
-                alert("Error processing order: " + err);
+                alert("POS Processing Error: " + err);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<span>Place Order</span><span>→</span>';
+                btn.innerHTML = '<span>Process Order</span><span>→</span>';
             }
         }
 
@@ -1102,17 +1113,17 @@
             let tele = '';
 
             if (status === 'approved') {
-                desc = `Order was autonomously approved. Total value is $${data.total}, which is below the $100 escalation threshold, and inventory stock is sufficient. Stock has been deducted and an order record was written to Google Sheets.`;
-                tele = `✅ Order Approved\n\nOrder: ${data.order_id}\nTotal: $${data.total}\nYour order has been approved and is being processed!`;
+                desc = `Transaction autonomously approved and fulfilled. Total value is $${data.total} (< $100 escalation threshold), and register stock was verified. Inventory was reduced on shelf, and a digital receipt was logged to Google Sheets and Telegram.`;
+                tele = `✅ Order Approved (AURA POS)\n\nOrder ID: ${data.order_id}\nTotal: $${data.total}\nReceipt generated and stock deducted.`;
             } else if (status === 'escalated') {
-                desc = `Order value is $${data.total} (>= $100 threshold). Per business rules, high-value orders require human verification. An escalation alert has been dispatched to the business owner via Telegram.`;
-                tele = `⚠️ Order Escalation Alert\n\nOrder: ${data.order_id}\nCustomer: ${customer}\nValue: $${data.total}\nPlease review and approve/reject.`;
+                desc = `Transaction value is $${data.total} (>= $100 threshold). Per store policy, high-value orders require Manager Override sign-off. An escalation alert was dispatched to the store manager/owner via Telegram.`;
+                tele = `⚠️ POS Escalation Alert\n\nOrder ID: ${data.order_id}\nCustomer: ${customer}\nTotal: $${data.total}\nReason: Value >= $100. Pending manager approval.`;
             } else if (status === 'alternative_suggested') {
-                desc = `Requested quantity exceeds available stock. The AI agent autonomously searched inventory for matching alternative variants and formulated a substitute offer without prematurely deducting stock.`;
-                tele = `📦 Order Update — ${data.order_id}\n\nWe are low on stock for your requested item.\nWe can fulfill your order with substitute variants!\nTotal: $${data.total}\nReply YES to confirm.`;
+                desc = `Requested item quantity exceeds on-shelf stock. The POS agent autonomously verified inventory and offered available substitute color variants from backstock without prematurely reducing shelf counts.`;
+                tele = `📦 Stock Notice — ${data.order_id}\n\nShelf quantity insufficient for requested color.\nAlternative available variants offered.\nTotal: $${data.total}\nReply YES to confirm swap.`;
             } else {
-                desc = `Product was not found or details were incomplete. The AI agent autonomously paused fulfillment and asked the customer for clarification.`;
-                tele = `❓ Order Update — ${data.order_id}\n\nWe need more information to process your request.\nPlease provide more details.`;
+                desc = `Item was not found in register catalog or quantity was ambiguous. The POS terminal paused fulfillment and requested SKU clarification.`;
+                tele = `❓ Item Inquiry — ${data.order_id}\n\nItem not recognized in active catalog.\nPlease provide SKU or color variant.`;
             }
 
             reasonText.textContent = desc;
@@ -1170,7 +1181,6 @@
             document.getElementById('audit-modal').classList.remove('active');
         }
 
-        // Close on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeDecisionModal();
