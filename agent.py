@@ -69,11 +69,16 @@ LOW_STOCK_THRESHOLD = 5
 # ============================================================
 
 DEFAULT_MOCK_PRODUCTS = [
-    {"SKU": "SH-BLK-B", "Product": "Basic Shirt", "Variant": "Black", "Price": 10, "Stock": 20, "Low_Stock_Threshold": 5},
-    {"SKU": "SH-WHT-B", "Product": "Basic Shirt", "Variant": "White", "Price": 10, "Stock": 18, "Low_Stock_Threshold": 5},
-    {"SKU": "SH-BLK-P", "Product": "Premium Shirt", "Variant": "Black", "Price": 18, "Stock": 5, "Low_Stock_Threshold": 2},
-    {"SKU": "SH-WHT-P", "Product": "Premium Shirt", "Variant": "White", "Price": 18, "Stock": 8, "Low_Stock_Threshold": 2},
-    {"SKU": "SH-RED-B", "Product": "Basic Shirt", "Variant": "Red", "Price": 10, "Stock": 15, "Low_Stock_Threshold": 5},
+    {"SKU": "PR-QEN", "Product": "Yes I Am The Queen", "Variant": "Pink 100ml", "Price": 40, "Stock": 10, "Low_Stock_Threshold": 2, "Category": "Beauty"},
+    {"SKU": "PR-KNG", "Product": "Yes I Am The King Le", "Variant": "Black 100ml", "Price": 38, "Stock": 10, "Low_Stock_Threshold": 2, "Category": "Beauty"},
+    {"SKU": "PR-CHR", "Product": "Cherry Delice", "Variant": "Red 100ml", "Price": 38, "Stock": 10, "Low_Stock_Threshold": 2, "Category": "Beauty"},
+    {"SKU": "PR-CHC", "Product": "Chic Oriental", "Variant": "Gold 100ml", "Price": 39, "Stock": 10, "Low_Stock_Threshold": 2, "Category": "Beauty"},
+    {"SKU": "PR-BLU", "Product": "Bleu Impérial", "Variant": "Blue 100ml", "Price": 38, "Stock": 10, "Low_Stock_Threshold": 2, "Category": "Beauty"},
+    {"SKU": "SH-BLK-B", "Product": "Basic Shirt", "Variant": "Black", "Price": 10, "Stock": 20, "Low_Stock_Threshold": 5, "Category": "Apparel"},
+    {"SKU": "SH-WHT-B", "Product": "Basic Shirt", "Variant": "White", "Price": 10, "Stock": 18, "Low_Stock_Threshold": 5, "Category": "Apparel"},
+    {"SKU": "SH-BLK-P", "Product": "Premium Shirt", "Variant": "Black", "Price": 18, "Stock": 5, "Low_Stock_Threshold": 2, "Category": "Apparel"},
+    {"SKU": "SH-WHT-P", "Product": "Premium Shirt", "Variant": "White", "Price": 18, "Stock": 8, "Low_Stock_Threshold": 2, "Category": "Apparel"},
+    {"SKU": "SH-RED-B", "Product": "Basic Shirt", "Variant": "Red", "Price": 10, "Stock": 15, "Low_Stock_Threshold": 5, "Category": "Apparel"},
 ]
 
 

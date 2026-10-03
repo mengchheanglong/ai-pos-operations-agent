@@ -3,1193 +3,2045 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA POS — AI Smart Retail & Order Terminal</title>
+    <title>Elora POS — AI Smart Retail & Order Terminal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #090d16;
-            --bg-surface: #111827;
-            --bg-card: #162032;
-            --bg-card-hover: #1e293b;
-            --border: #24324a;
-            --border-highlight: #3b82f6;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
+            --bg-body: #ffffff;
+            --bg-muted: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --border-focus: #2563eb;
+            --text-main: #0f172a;
             --text-muted: #64748b;
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --accent-emerald: #10b981;
-            --accent-amber: #f59e0b;
-            --accent-rose: #f43f5e;
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-            --shadow-glow: 0 0 30px -5px rgba(59, 130, 246, 0.25);
+            --text-sub: #94a3b8;
+            --accent-green: #10b981;
+            --accent-pay: #7bb89d;
+            --accent-pay-hover: #65a386;
+            --accent-pay-active: #528d72;
+            --accent-dark: #0f172a;
+            --accent-blue: #2563eb;
+            --accent-amber: #d97706;
+            --accent-purple: #7c3aed;
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.06);
+            --khr-rate: 4100;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.5;
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Ambient Glow Background */
-        .ambient-glow {
-            position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 1000px;
-            height: 380px;
-            background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.05) 50%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Top Navigation Bar / POS Register Header */
+        /* ------------------------------------------
+           TOP HEADER BAR
+        ------------------------------------------- */
         header {
-            position: sticky;
-            top: 0;
-            z-index: 40;
-            backdrop-filter: blur(16px);
-            background: rgba(9, 13, 22, 0.9);
-            border-bottom: 1px solid var(--border);
-            padding: 0.75rem 2rem;
-        }
-
-        .nav-container {
-            max-width: 1240px;
-            margin: 0 auto;
+            height: 56px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
+            padding: 0 16px;
+            z-index: 20;
+            flex-shrink: 0;
         }
 
-        .brand-wrap {
+        .header-left, .header-center, .header-right {
             display: flex;
             align-items: center;
-            gap: 0.85rem;
-            text-decoration: none;
-            color: inherit;
+            gap: 8px;
         }
 
-        .brand-logo {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            display: grid;
-            place-items: center;
-            font-weight: 800;
-            font-size: 1.15rem;
-            color: white;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-        }
-
-        .brand-name {
-            font-weight: 800;
-            font-size: 1.15rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(to right, #ffffff, #cbd5e1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .register-badge {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 2px 7px;
-            border-radius: 6px;
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            margin-left: 0.35rem;
-        }
-
-        .nav-status-group {
-            display: flex;
+        /* Pill Badges & Buttons */
+        .pill-info {
+            display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-
-        .status-pill {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            padding: 0.3rem 0.7rem;
+            gap: 6px;
+            padding: 5px 12px;
+            background: var(--bg-muted);
+            border: 1px solid var(--border-color);
             border-radius: 9999px;
-            font-size: 0.73rem;
-            font-weight: 600;
-            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
         }
 
+        .pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .pill-btn:hover {
+            border-color: #cbd5e1;
+            color: var(--text-main);
+            background: var(--bg-muted);
+        }
+
+        .pill-btn.active {
+            background: var(--accent-dark);
+            color: #ffffff;
+            border-color: var(--accent-dark);
+            font-weight: 600;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-muted);
+            color: var(--text-main);
+            border-color: #cbd5e1;
+        }
+
+        /* System Health Dots */
         .status-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: var(--accent-emerald);
-            box-shadow: 0 0 8px var(--accent-emerald);
-            animation: pulse-dot 2s infinite;
+            background-color: var(--accent-green);
+            display: inline-block;
         }
 
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.9); }
-        }
-
-        .btn-audit {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            padding: 0.4rem 0.85rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.8rem;
+        .health-badge {
+            font-size: 11px;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            color: var(--text-muted);
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 9999px;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-        }
-        .btn-audit:hover {
-            border-color: var(--accent-blue);
-            background: #1e293b;
+            gap: 5px;
         }
 
-        /* Main POS Workspace */
-        main {
-            position: relative;
-            z-index: 10;
-            max-width: 1240px;
-            margin: 0 auto;
-            padding: 1.75rem 1.5rem 4rem;
+        /* ------------------------------------------
+           MAIN APPLICATION LAYOUT (SPLIT SCREEN)
+        ------------------------------------------- */
+        .main-layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            height: calc(100vh - 56px);
+            overflow: hidden;
+            background: #ffffff;
         }
 
-        /* POS Terminal Control Banner */
-        .pos-banner {
-            background: linear-gradient(145deg, #131d2e 0%, #172438 100%);
-            border: 1px solid rgba(59, 130, 246, 0.35);
-            border-radius: var(--radius-lg);
-            padding: 1.75rem 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-glow), var(--shadow-card);
-            position: relative;
+        /* ------------------------------------------
+           LEFT PANEL: CATALOG & SEARCH
+        ------------------------------------------- */
+        .catalog-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 16px 20px 0 20px;
+            border-right: 1px solid var(--border-color);
             overflow: hidden;
         }
 
-        .pos-banner::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .banner-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.25rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .banner-title {
-            font-size: 1.35rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .banner-subtitle {
-            font-size: 0.86rem;
-            color: var(--text-secondary);
-            margin-top: 0.2rem;
-        }
-
-        .operator-meta-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .pos-meta-pill {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            padding: 0.3rem 0.75rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.78rem;
-            color: var(--text-secondary);
-        }
-
-        .pos-meta-pill input {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            font-weight: 700;
-            outline: none;
-            width: 105px;
-        }
-
-        /* Conversational Ring-Up Bar */
-        .ai-input-bar {
-            display: flex;
-            gap: 0.75rem;
+        /* Barcode / Search Box */
+        .search-box-container {
             position: relative;
-            background: var(--bg-body);
-            border: 1px solid #334155;
-            border-radius: var(--radius-md);
-            padding: 0.4rem 0.5rem 0.4rem 1.1rem;
-            transition: all 0.2s;
+            margin-bottom: 12px;
         }
 
-        .ai-input-bar:focus-within {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        .search-box {
+            display: flex;
+            align-items: center;
+            border: 1.5px solid var(--border-focus);
+            border-radius: 8px;
+            padding: 8px 14px;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+            transition: all 0.15s ease;
         }
 
-        .ai-input-bar input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            outline: none;
-        }
-
-        .ai-input-bar input::placeholder {
+        .barcode-icon {
+            display: inline-flex;
+            align-items: center;
             color: #64748b;
+            margin-right: 10px;
         }
 
-        .btn-process {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        .search-input {
             border: none;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.88rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: transform 0.15s, opacity 0.15s;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            color: var(--text-main);
+            background: transparent;
         }
 
-        .btn-process:hover { opacity: 0.95; transform: translateY(-1px); }
-        .btn-process:active { transform: translateY(0); }
-        .btn-process:disabled { opacity: 0.5; cursor: not-allowed; }
+        .search-input::placeholder {
+            color: #94a3b8;
+        }
 
-        /* Scenario Quick Buttons */
-        .demo-presets-wrap {
-            margin-top: 1rem;
+        .btn-ai-ring {
+            background: #eff6ff;
+            color: var(--accent-blue);
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-ai-ring:hover {
+            background: #dbeafe;
+        }
+
+        /* Filter Pills & AI Demo Presets */
+        .category-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
             flex-wrap: wrap;
         }
 
-        .presets-label {
-            font-size: 0.73rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-right: 0.2rem;
+        .category-pills {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .preset-btn {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 0.76rem;
-            font-weight: 600;
-            padding: 0.35rem 0.75rem;
+        .cat-pill {
+            padding: 6px 14px;
             border-radius: 9999px;
-            cursor: pointer;
-            transition: all 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .preset-btn:hover {
-            color: var(--text-primary);
-            border-color: #475569;
-            background: #1e293b;
-            transform: translateY(-1px);
-        }
-
-        .preset-tag {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-        }
-        .tag-green { background: #10b981; }
-        .tag-amber { background: #f59e0b; }
-        .tag-purple { background: #8b5cf6; }
-        .tag-blue { background: #3b82f6; }
-
-        /* Catalog Section Header */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.25rem;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: var(--text-primary);
-        }
-
-        .catalog-badge {
-            font-size: 0.8rem;
-            color: var(--text-muted);
+            font-size: 13px;
             font-weight: 500;
+            background: var(--bg-muted);
+            color: var(--text-muted);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
+
+        .cat-pill:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .cat-pill.active {
+            background: var(--accent-dark);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* AI Quick Presets */
+        .ai-presets {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .preset-chip {
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .preset-chip.approve {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+        .preset-chip.approve:hover { background: #d1fae5; }
+
+        .preset-chip.escalate {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+        .preset-chip.escalate:hover { background: #fef3c7; }
+
+        .preset-chip.suggest {
+            background: #f5f3ff;
+            color: #5b21b6;
+            border-color: #ddd6fe;
+        }
+        .preset-chip.suggest:hover { background: #ede9fe; }
+
+        .preset-chip.clarify {
+            background: #f1f5f9;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+        .preset-chip.clarify:hover { background: #e2e8f0; }
 
         /* Product Cards Grid */
-        .product-grid {
+        .products-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 2px 24px 2px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            align-content: start;
         }
 
         .product-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1.15rem;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
 
         .product-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+            border-color: #93c5fd;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
         }
 
-        .card-img-wrap {
-            height: 145px;
-            border-radius: var(--radius-sm);
-            display: grid;
-            place-items: center;
-            margin-bottom: 0.85rem;
-            background: #0f172a;
-            position: relative;
+        .product-card:active {
+            transform: scale(0.98);
+        }
+
+        .product-img-box {
+            height: 135px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border-radius: 8px;
+            margin-bottom: 10px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .card-stock-tag {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            font-size: 0.68rem;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 6px;
-            backdrop-filter: blur(6px);
-        }
-
-        .tag-in-stock {
-            background: rgba(16, 185, 129, 0.2);
-            color: #6ee7b7;
-            border: 1px solid rgba(16, 185, 129, 0.4);
-        }
-
-        .tag-low-stock {
-            background: rgba(245, 158, 11, 0.2);
-            color: #fde68a;
-            border: 1px solid rgba(245, 158, 11, 0.4);
-        }
-
-        .sku-code {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.68rem;
-            color: var(--text-muted);
-            margin-bottom: 0.2rem;
         }
 
         .product-title {
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            color: var(--text-primary);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.3;
+            margin-bottom: 4px;
+            min-height: 35px;
         }
 
         .product-variant {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.85rem;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
         }
 
-        .price-row {
+        .product-footer {
             display: flex;
             align-items: baseline;
             justify-content: space-between;
             margin-top: auto;
-            padding-top: 0.75rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            margin-bottom: 0.85rem;
+            padding-top: 4px;
         }
 
-        .price-val {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #ffffff;
+        .product-price {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
-        .price-stock {
-            font-size: 0.75rem;
+        .product-stock {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-green);
+        }
+
+        .product-stock.low {
+            color: var(--accent-amber);
+        }
+
+        .product-stock.out {
+            color: #ef4444;
+        }
+
+        /* ------------------------------------------
+           RIGHT PANEL: CURRENT ORDER SIDEBAR
+        ------------------------------------------- */
+        .order-sidebar {
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .order-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .order-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .order-badge-count {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 9999px;
+        }
+
+        .order-clear-btn {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .order-clear-btn:hover {
+            color: #ef4444;
+        }
+
+        /* Customer selector row */
+        .customer-row {
+            margin: 10px 16px;
+            padding: 8px 12px;
+            background: var(--bg-muted);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .customer-badge {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .customer-badge:hover {
+            border-color: #94a3b8;
+            color: var(--text-main);
+        }
+
+        /* Cart Content */
+        .cart-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Empty Cart State (matches screenshot) */
+        .cart-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+        }
+
+        .cart-empty-icon {
+            width: 72px;
+            height: 72px;
+            color: #cbd5e1;
+            margin-bottom: 14px;
+        }
+
+        .cart-empty-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .cart-empty-desc {
+            font-size: 12px;
+            color: var(--text-sub);
+            max-width: 230px;
+            line-height: 1.45;
+        }
+
+        /* Populated Cart Items */
+        .cart-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 8px;
+            box-shadow: var(--shadow-subtle);
+            transition: all 0.15s ease;
+        }
+
+        .cart-item:hover {
+            border-color: #e2e8f0;
+        }
+
+        .cart-item-info {
+            flex: 1;
+            min-width: 0;
+            margin-right: 10px;
+        }
+
+        .cart-item-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cart-item-meta {
+            font-size: 11.5px;
             color: var(--text-muted);
         }
 
-        .card-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .qty-stepper {
+        .cart-item-controls {
             display: flex;
             align-items: center;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            width: 80px;
+            gap: 6px;
         }
 
         .qty-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            width: 26px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: 700;
-            font-size: 0.9rem;
-            display: grid;
-            place-items: center;
-        }
-        .qty-btn:hover { background: #1e293b; color: white; }
-
-        .qty-display {
-            flex: 1;
-            text-align: center;
-            font-size: 0.82rem;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .btn-quick-order {
-            flex: 1;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            font-size: 0.78rem;
-            font-weight: 700;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.35rem;
-        }
-        .btn-quick-order:hover {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: white;
         }
 
-        /* Modal Slip Overlay */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(4, 7, 14, 0.75);
-            backdrop-filter: blur(8px);
-            z-index: 100;
-            display: none;
-            place-items: center;
-            padding: 1.5rem;
+        .qty-btn:hover {
+            background: var(--bg-muted);
         }
 
-        .modal-overlay.active {
-            display: grid;
+        .qty-val {
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 18px;
+            text-align: center;
         }
 
-        .decision-modal {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            width: 100%;
+        .cart-item-price {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            min-width: 55px;
+            text-align: right;
+            margin-left: 6px;
+        }
+
+        .cart-item-del {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 4px;
+        }
+
+        .cart-item-del:hover {
+            color: #ef4444;
+        }
+
+        /* Order Summary & Checkout Footer */
+        .order-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 14px 18px 18px 18px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .discount-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .discount-link:hover {
+            color: var(--accent-blue);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 4px;
+            padding-top: 6px;
+            border-top: 1px dashed #f1f5f9;
+        }
+
+        .total-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .total-amount {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .riel-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .riel-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Checkout Action Buttons */
+        .action-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .btn-hold {
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-hold:hover {
+            background: var(--bg-muted);
+            color: var(--text-main);
+        }
+
+        .btn-pay {
+            flex: 1;
+            padding: 12px 20px;
+            background: var(--accent-pay);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-pay.active {
+            background: var(--accent-pay-hover);
+        }
+
+        .btn-pay:hover {
+            background: var(--accent-pay-hover);
+        }
+
+        .btn-pay:active {
+            background: var(--accent-pay-active);
+        }
+
+        .btn-pay:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        /* ------------------------------------------
+           MODALS (NATIVE DIALOG WITH LIGHT-DISMISS)
+        ------------------------------------------- */
+        dialog {
+            border: none;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
             max-width: 580px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            width: 92%;
+            margin: auto;
+            padding: 0;
             overflow: hidden;
-            animation: modal-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            outline: none;
         }
 
-        @keyframes modal-pop {
-            from { transform: scale(0.95) translateY(10px); opacity: 0; }
-            to { transform: scale(1) translateY(0); opacity: 1; }
+        dialog::backdrop {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(3px);
         }
 
         .modal-header {
-            padding: 1.15rem 1.5rem;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: #ffffff;
         }
 
         .modal-title {
-            font-size: 1.05rem;
-            font-weight: 800;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
-        .modal-close {
-            background: transparent;
+        .modal-close-btn {
+            background: none;
             border: none;
+            font-size: 18px;
             color: var(--text-muted);
-            font-size: 1.3rem;
             cursor: pointer;
             width: 28px;
             height: 28px;
-            display: grid;
-            place-items: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 6px;
         }
-        .modal-close:hover { background: var(--bg-card-hover); color: white; }
+
+        .modal-close-btn:hover {
+            background: var(--bg-muted);
+            color: var(--text-main);
+        }
 
         .modal-body {
-            padding: 1.5rem;
-            max-height: 80vh;
+            padding: 20px;
+            max-height: 75vh;
             overflow-y: auto;
         }
 
-        /* 4-Step Visual Progress Tracker */
-        .progress-flow {
+        /* 4-Step Pipeline Bar */
+        .pipeline-bar {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1.25rem;
-            position: relative;
+            gap: 8px;
+            margin-bottom: 18px;
         }
 
-        .flow-step {
+        .pipeline-step {
+            background: var(--bg-muted);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 8px;
             text-align: center;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 0.55rem 0.3rem;
-            position: relative;
+            transition: all 0.2s ease;
         }
 
-        .flow-step.complete {
-            border-color: var(--accent-emerald);
-            background: rgba(16, 185, 129, 0.08);
+        .pipeline-step.active {
+            background: #eff6ff;
+            border-color: #bfdbfe;
         }
 
-        .flow-icon {
-            font-size: 1rem;
-            margin-bottom: 0.15rem;
+        .pipeline-step.success {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
         }
 
-        .flow-label {
-            font-size: 0.66rem;
+        .pipeline-step-icon {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .pipeline-step-title {
+            font-size: 10.5px;
             font-weight: 700;
-            color: var(--text-secondary);
+            color: var(--text-main);
+            line-height: 1.2;
         }
 
-        .flow-step.complete .flow-label {
-            color: #6ee7b7;
-        }
-
-        /* Decision Banner */
-        .decision-badge-banner {
-            padding: 0.9rem 1.15rem;
-            border-radius: var(--radius-md);
-            margin-bottom: 1.25rem;
+        /* Decision Status Box */
+        .status-box {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+
+        .status-box.approved {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .status-box.escalated {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .status-box.alternative_suggested {
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+            color: #5b21b6;
+        }
+
+        .status-box.clarify {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+        }
+
+        .status-badge-text {
+            font-size: 13px;
             font-weight: 700;
-        }
-
-        .decision-approved {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.35);
-            color: #34d399;
-        }
-
-        .decision-escalated {
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            color: #fbbf24;
-        }
-
-        .decision-alternative_suggested {
-            background: rgba(139, 92, 246, 0.15);
-            border: 1px solid rgba(139, 92, 246, 0.35);
-            color: #c084fc;
-        }
-
-        .decision-clarify {
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid rgba(59, 130, 246, 0.35);
-            color: #60a5fa;
-        }
-
-        .decision-status-title {
-            font-size: 0.92rem;
-            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            gap: 0.45rem;
+            gap: 6px;
         }
 
-        .decision-order-id {
+        .order-id-tag {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            padding: 2px 6px;
-            background: rgba(0, 0, 0, 0.3);
+            font-size: 11.5px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 2px 8px;
             border-radius: 4px;
         }
 
-        /* Details list */
-        .result-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 0.9rem 1rem;
-            margin-bottom: 0.9rem;
+        /* Section Cards */
+        .info-card {
+            background: var(--bg-muted);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
         }
 
-        .result-section-title {
-            font-size: 0.7rem;
-            font-weight: 800;
+        .info-card-title {
+            font-size: 11.5px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
             color: var(--text-muted);
-            margin-bottom: 0.4rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
 
-        .reason-text {
-            font-size: 0.86rem;
-            color: var(--text-secondary);
+        .info-card-text {
+            font-size: 13px;
+            color: var(--text-main);
             line-height: 1.5;
         }
 
-        .telegram-preview-box {
-            background: #0c1322;
-            border-left: 3px solid #0ea5e9;
-            padding: 0.75rem 1rem;
-            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-            font-size: 0.82rem;
-            color: #cbd5e1;
-            white-space: pre-line;
+        /* Telegram Dispatch Preview Box */
+        .telegram-preview {
+            background: #1e293b;
+            color: #f8fafc;
+            border-radius: 8px;
+            padding: 12px 14px;
             font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+            border-left: 3px solid #38bdf8;
         }
 
-        /* Audit Drawer */
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 12px 20px;
+            background: var(--bg-muted);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-modal {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-main);
+            transition: all 0.15s ease;
+        }
+
+        .btn-modal:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-modal-primary {
+            background: var(--accent-dark);
+            color: #ffffff;
+            border-color: var(--accent-dark);
+        }
+
+        .btn-modal-primary:hover {
+            background: #1e293b;
+        }
+
+        /* Register Audit Table */
         .audit-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.78rem;
-            margin-top: 0.5rem;
+            font-size: 12px;
+            text-align: left;
         }
 
         .audit-table th {
-            text-align: left;
-            padding: 0.5rem;
-            background: var(--bg-card);
+            background: #f1f5f9;
+            padding: 8px 10px;
+            font-weight: 600;
             color: var(--text-muted);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .audit-table td {
-            padding: 0.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            color: var(--text-secondary);
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-main);
         }
 
-        @media (max-width: 768px) {
-            header { padding: 0.75rem 1rem; }
-            .nav-status-group { display: none; }
-            .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-            .progress-flow { grid-template-columns: repeat(2, 1fr); }
+        .audit-table tr:hover td {
+            background: var(--bg-muted);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
 <body>
-    <div class="ambient-glow"></div>
 
-    <!-- POS Register Header -->
+    <!-- ==========================================
+         TOP NAVIGATION BAR
+    =========================================== -->
     <header>
-        <div class="nav-container">
-            <a href="/" class="brand-wrap">
-                <div class="brand-logo">⚡</div>
-                <div>
-                    <span class="brand-name">AURA POS</span>
-                    <span class="register-badge">Terminal #01 Active</span>
-                </div>
-            </a>
-
-            <div class="nav-status-group">
-                <div class="status-pill">
-                    <span class="status-dot"></span>
-                    <span>DeepSeek LLM</span>
-                </div>
-                <div class="status-pill">
-                    <span class="status-dot"></span>
-                    <span>Telegram Alerts</span>
-                </div>
-                <div class="status-pill">
-                    <span class="status-dot"></span>
-                    <span>Live Sheets Inventory</span>
-                </div>
+        <div class="header-left">
+            <div class="pill-info" title="Store Location">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Elora</span>
             </div>
 
-            <button class="btn-audit" onclick="openAuditModal()">
-                <span>📊</span>
-                <span>Register Audit Log</span>
+            <div class="pill-info" title="Terminal Register ID & Clerk">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                <span>22003F17</span>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <button class="pill-btn active" id="tab-sell" onclick="switchMainTab('sell')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <span>Sell</span>
+            </button>
+
+            <button class="pill-btn" id="tab-tickets" onclick="showToast('Tickets list synchronized')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                    <circle cx="12" cy="12" r="2"></circle>
+                    <path d="M6 12h.01M18 12h.01"></path>
+                </svg>
+                <span>Tickets</span>
+            </button>
+
+            <button class="pill-btn" id="tab-returns" onclick="showToast('Returns portal active')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                <span>Returns</span>
+            </button>
+
+            <button class="pill-btn" id="tab-register" onclick="openRegisterDialog()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <span>Register</span>
+            </button>
+
+            <div class="health-badge" title="DeepSeek LLM + Sheets + Telegram Live">
+                <span class="status-dot"></span>
+                <span>AI Core Live</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="icon-btn" onclick="syncCatalog(true)" title="Refresh Shelf Inventory">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                </svg>
+            </button>
+
+            <button class="icon-btn" onclick="toggleFullScreen()" title="Fullscreen Terminal">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
+            </button>
+
+            <button class="pill-btn" onclick="openRegisterDialog()">
+                <span>⋮ Tools</span>
+            </button>
+
+            <button class="pill-btn" onclick="showToast('Terminal session locked (PIN: 2200)')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Lock</span>
             </button>
         </div>
     </header>
 
-    <main>
-        <!-- POS Conversational Order Console -->
-        <section class="pos-banner">
-            <div class="banner-header">
-                <div>
-                    <h2 class="banner-title">
-                        <span>⚡ Conversational AI POS & Fast Checkout</span>
-                    </h2>
-                    <p class="banner-subtitle">Process counter sales, phone orders, and messaging requests in natural language with automated rules and alerts</p>
+    <!-- ==========================================
+         MAIN LAYOUT (SPLIT SCREEN)
+    =========================================== -->
+    <div class="main-layout">
+
+        <!-- LEFT COLUMN: CATALOG & BARCODE SEARCH -->
+        <main class="catalog-panel">
+            <!-- Search & Barcode Bar -->
+            <div class="search-box-container">
+                <div class="search-box">
+                    <span class="barcode-icon">
+                        <!-- Barcode SVG -->
+                        <svg width="22" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="2" y="4" width="2" height="16"></rect>
+                            <rect x="5" y="4" width="1" height="16"></rect>
+                            <rect x="7" y="4" width="3" height="16"></rect>
+                            <rect x="11" y="4" width="1" height="16"></rect>
+                            <rect x="13" y="4" width="2" height="16"></rect>
+                            <rect x="16" y="4" width="3" height="16"></rect>
+                            <rect x="20" y="4" width="2" height="16"></rect>
+                        </svg>
+                    </span>
+                    <input type="text" id="pos-search-input" class="search-input" 
+                           placeholder="Scan barcode or search products by name, SKU..." 
+                           oninput="filterCatalog(this.value)"
+                           onkeydown="handleSearchKey(event)"
+                           autocomplete="off">
+                    <button class="btn-ai-ring" onclick="processSearchPrompt()" title="Submit conversational order to DeepSeek">
+                        <span>⚡ AI Ring Up</span>
+                        <span style="font-size: 10px; opacity: 0.7;">↵</span>
+                    </button>
                 </div>
-                <div class="operator-meta-group">
-                    <div class="pos-meta-pill">
-                        <span style="color: #64748b;">Clerk:</span>
-                        <strong style="color: #cbd5e1;">Mengchheang</strong>
-                    </div>
-                    <div class="pos-meta-pill">
-                        <span style="color: #64748b;">Customer:</span>
-                        <input type="text" id="customer-name" value="John Doe">
-                    </div>
+            </div>
+
+            <!-- Categories & Rubric Evaluation Presets -->
+            <div class="category-row">
+                <div class="category-pills">
+                    <button class="cat-pill active" onclick="setCategory('all', this)">All Products</button>
+                    <button class="cat-pill" onclick="setCategory('beauty', this)">Beauty</button>
+                    <button class="cat-pill" onclick="setCategory('apparel', this)">Apparel</button>
+                    <button class="cat-pill" onclick="setCategory('other', this)">Other</button>
+                </div>
+
+                <!-- 1-Click Rubric Scenario Testing Presets -->
+                <div class="ai-presets">
+                    <span style="font-size: 11px; font-weight: 600; color: #94a3b8; margin-right: 2px;">AI DEMO:</span>
+                    <button class="preset-chip approve" onclick="runPresetScenario('approve')" title="Auto-approval flow: 2 units ($20 < $100)">
+                        <span>⚡ Fast Sale (<$100)</span>
+                    </button>
+                    <button class="preset-chip escalate" onclick="runPresetScenario('escalate')" title="Manager Override flow: 12 units ($120 >= $100)">
+                        <span>⚠️ Manager Override (≥$100)</span>
+                    </button>
+                    <button class="preset-chip suggest" onclick="runPresetScenario('suggest')" title="Shelf stock-out alternative flow: 25 units">
+                        <span>📦 Out-of-Stock Alt</span>
+                    </button>
+                    <button class="preset-chip clarify" onclick="runPresetScenario('clarify')" title="Catalog clarification flow: Blue Jeans">
+                        <span>❓ Clarify SKU</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="ai-input-bar">
-                <input type="text" id="order-input" placeholder="Type plain English order or scan request (e.g. 'Customer wants 2 black basic shirts' or '12 shirts for team')...">
-                <button class="btn-process" id="process-btn" onclick="submitCustomOrder()">
-                    <span>Process Order</span>
-                    <span>→</span>
-                </button>
+            <!-- Products Grid Container -->
+            <div class="products-grid" id="products-grid">
+                <!-- Dynamically generated via loadProducts() -->
+            </div>
+        </main>
+
+        <!-- RIGHT COLUMN: CURRENT ORDER SIDEBAR -->
+        <aside class="order-sidebar">
+            <!-- Header -->
+            <div class="order-header">
+                <div class="order-title-group">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span>Current Order</span>
+                    <span class="order-badge-count" id="cart-item-count">0</span>
+                </div>
+                <button class="order-clear-btn" id="btn-clear-cart" onclick="clearCart()" style="display: none;">Clear</button>
             </div>
 
-            <!-- Quick Ring-Up Presets (1-Click Demo Scenarios) -->
-            <div class="demo-presets-wrap">
-                <span class="presets-label">Quick POS Presets:</span>
-                <button class="preset-btn" onclick="runPreset('I want 2 black Basic Shirts')">
-                    <span class="preset-tag tag-green"></span>
-                    <span>Quick Sale: 2 Black Basic (Auto-Approve &lt;$100)</span>
-                </button>
-                <button class="preset-btn" onclick="runPreset('I need 12 black Basic Shirts')">
-                    <span class="preset-tag tag-amber"></span>
-                    <span>Manager Override: 12 Black ($120 &ge; $100)</span>
-                </button>
-                <button class="preset-btn" onclick="runPreset('I want 25 black Basic Shirts')">
-                    <span class="preset-tag tag-purple"></span>
-                    <span>Stock-Out Alt: 25 Black (Suggest White/Red)</span>
-                </button>
-                <button class="preset-btn" onclick="runPreset('Do you have blue jeans?')">
-                    <span class="preset-tag tag-blue"></span>
-                    <span>Catalog Inquiry: Blue Jeans (Clarify)</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- Shelf Inventory Catalog -->
-        <div class="section-header">
-            <div>
-                <h3 class="section-title">Store Shelf Inventory</h3>
-                <p class="catalog-badge">Real-time inventory levels synced with Google Sheets register</p>
-            </div>
-            <button class="btn-audit" onclick="loadProducts()">
-                <span>🔄</span>
-                <span>Refresh Register Stock</span>
-            </button>
-        </div>
-
-        <!-- Products Grid -->
-        <div class="product-grid" id="products-container">
-            <!-- Rendered by JS -->
-        </div>
-    </main>
-
-    <!-- AI POS Transaction Slip Modal -->
-    <div class="modal-overlay" id="decision-modal">
-        <div class="decision-modal">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <span>🧾</span>
-                    <span>AI POS Transaction Receipt &amp; Decision</span>
+            <!-- Customer selector -->
+            <div class="customer-row">
+                <div class="customer-info">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span id="current-customer-label">Walk-In Customer</span>
                 </div>
-                <button class="modal-close" onclick="closeDecisionModal()">✕</button>
+                <button class="customer-badge" onclick="cycleCustomer()" title="Click to cycle customer name">Default</button>
             </div>
 
-            <div class="modal-body">
-                <!-- 4 Step Pipeline -->
-                <div class="progress-flow">
-                    <div class="flow-step complete">
-                        <div class="flow-icon">📥</div>
-                        <div class="flow-label">1. Request Received</div>
-                    </div>
-                    <div class="flow-step complete">
-                        <div class="flow-icon">🧠</div>
-                        <div class="flow-label">2. AI Intent Parsed</div>
-                    </div>
-                    <div class="flow-step complete">
-                        <div class="flow-icon">📊</div>
-                        <div class="flow-label">3. Stock Verified</div>
-                    </div>
-                    <div class="flow-step complete">
-                        <div class="flow-icon">✈️</div>
-                        <div class="flow-label">4. Telegram Dispatched</div>
-                    </div>
+            <!-- Cart Body -->
+            <div class="cart-body" id="cart-body">
+                <!-- Empty state shown by default -->
+                <div class="cart-empty" id="cart-empty-view">
+                    <svg class="cart-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <div class="cart-empty-title">Cart is empty</div>
+                    <div class="cart-empty-desc">Scan a barcode or tap products from the catalog to add to order.</div>
                 </div>
 
-                <!-- Decision Status Banner -->
-                <div class="decision-badge-banner" id="decision-badge">
-                    <div class="decision-status-title" id="decision-title">
-                        <span>●</span>
-                        <span id="decision-status-text">APPROVED</span>
-                    </div>
-                    <span class="decision-order-id" id="decision-order-id">ORD-000000</span>
-                </div>
-
-                <!-- AI Decision Reasoning -->
-                <div class="result-section">
-                    <div class="result-section-title">DeepSeek AI Decision Reasoning</div>
-                    <p class="reason-text" id="decision-reason">Analyzing order...</p>
-                </div>
-
-                <!-- Telegram Notification Preview -->
-                <div class="result-section">
-                    <div class="result-section-title">Telegram Live Message Preview (@business0psBot)</div>
-                    <div class="telegram-preview-box" id="telegram-preview">
-                        Sending notification...
-                    </div>
+                <!-- Populated items list -->
+                <div class="cart-items-list" id="cart-items-container" style="display: none;">
+                    <!-- Rendered dynamically -->
                 </div>
             </div>
-        </div>
+
+            <!-- Checkout Summary & Action Footer -->
+            <div class="order-footer">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="summary-subtotal">$0.00</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Order Discount</span>
+                    <span class="discount-link" onclick="promptDiscount()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                        </svg>
+                        <span id="discount-label">Add Discount</span>
+                    </span>
+                </div>
+
+                <div class="total-row">
+                    <span class="total-label">Total (USD)</span>
+                    <span class="total-amount" id="summary-total">$0.00</span>
+                </div>
+
+                <div class="riel-row">
+                    <span>Khmer Riel (៛) <span title="Exchange rate: 1 USD = 4,100 KHR" style="cursor:help;">ⓘ</span></span>
+                    <span class="riel-val" id="summary-riel">0 ៛</span>
+                </div>
+
+                <div class="action-row">
+                    <button class="btn-hold" onclick="holdCurrentTicket()">Hold Ticket</button>
+                    <button class="btn-pay" id="btn-pay-action" onclick="executeCheckout()">
+                        <span id="pay-btn-label">Pay $0.00</span>
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
     </div>
 
-    <!-- Register Audit Log Modal -->
-    <div class="modal-overlay" id="audit-modal">
-        <div class="decision-modal" style="max-width: 680px;">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <span>📊</span>
-                    <span>Register Shift Log &amp; Transaction Audit Trail</span>
-                </div>
-                <button class="modal-close" onclick="closeAuditModal()">✕</button>
+    <!-- ==========================================
+         DECISION & DIGITAL RECEIPT MODAL
+    =========================================== -->
+    <dialog id="decision-dialog" closedby="any" aria-labelledby="dialogTitle">
+        <div class="modal-header">
+            <div class="modal-title" id="dialogTitle">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <span>AI POS Transaction Receipt & Decision</span>
             </div>
-            <div class="modal-body">
-                <div class="result-section">
-                    <div class="result-section-title">Completed Orders Table (Google Sheets Orders Tab)</div>
-                    <div style="overflow-x: auto;">
-                        <table class="audit-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Product</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orders-table-body">
-                                <tr><td colspan="5" style="text-align: center;">No orders recorded yet.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <button class="modal-close-btn" onclick="closeDecisionDialog()" aria-label="Close dialog">✕</button>
+        </div>
 
-                <div class="result-section">
-                    <div class="result-section-title">Terminal Activity Log (Google Sheets Logs Tab)</div>
-                    <div style="overflow-x: auto;">
-                        <table class="audit-table">
-                            <thead>
-                                <tr>
-                                    <th>Log ID</th>
-                                    <th>Action</th>
-                                    <th>Order ID</th>
-                                    <th>Alert Dispatched</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logs-table-body">
-                                <tr><td colspan="4" style="text-align: center;">No activity logs yet.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="modal-body">
+            <!-- 4-Stage Operational Pipeline -->
+            <div class="pipeline-bar">
+                <div class="pipeline-step success">
+                    <div class="pipeline-step-icon">📥</div>
+                    <div class="pipeline-step-title">1. Request Received</div>
                 </div>
+                <div class="pipeline-step success">
+                    <div class="pipeline-step-icon">🧠</div>
+                    <div class="pipeline-step-title">2. DeepSeek AI</div>
+                </div>
+                <div class="pipeline-step success">
+                    <div class="pipeline-step-icon">📊</div>
+                    <div class="pipeline-step-title">3. Sheets Sync</div>
+                </div>
+                <div class="pipeline-step success">
+                    <div class="pipeline-step-icon">✈️</div>
+                    <div class="pipeline-step-title">4. Telegram Sent</div>
+                </div>
+            </div>
+
+            <!-- Decision Status Badge -->
+            <div class="status-box approved" id="modal-status-box">
+                <div class="status-badge-text" id="modal-status-text">
+                    <span>● APPROVED</span>
+                </div>
+                <div class="order-id-tag" id="modal-order-id">ORD-XXXXXXXX</div>
+            </div>
+
+            <!-- Reasoning Card -->
+            <div class="info-card">
+                <div class="info-card-title">DeepSeek AI Decision Reasoning</div>
+                <div class="info-card-text" id="modal-reason-text">
+                    Transaction autonomously approved and fulfilled. Total value is below the $100 escalation threshold, and shelf stock is verified.
+                </div>
+            </div>
+
+            <!-- Telegram Dispatch Preview -->
+            <div class="info-card-title" style="margin-left: 2px;">Telegram Bot Dispatch (@business0psBot)</div>
+            <div class="telegram-preview" id="modal-telegram-text">
+✅ Order Approved (Elora POS)
+Order ID: ORD-389EFB43
+Customer: John Doe
+Total: $20.00
+Digital receipt recorded to Google Sheets.
             </div>
         </div>
+
+        <div class="modal-actions">
+            <button class="btn-modal" onclick="printReceiptMock()">🖨️ Print Receipt</button>
+            <button class="btn-modal btn-modal-primary" onclick="closeDecisionDialog(true)">🔄 New Sale</button>
+        </div>
+    </dialog>
+
+    <!-- ==========================================
+         REGISTER AUDIT LOG DIALOG
+    =========================================== -->
+    <dialog id="register-dialog" closedby="any" style="max-width: 720px;">
+        <div class="modal-header">
+            <div class="modal-title">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <span>Terminal Register & Audit Logs (Google Sheets Sync)</span>
+            </div>
+            <button class="modal-close-btn" onclick="closeRegisterDialog()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+                <button class="pill-btn active" id="btn-tab-orders" onclick="switchAuditTab('orders')">Orders Sheet</button>
+                <button class="pill-btn" id="btn-tab-logs" onclick="switchAuditTab('logs')">Audit Trail Logs</button>
+                <button class="pill-btn" onclick="fetchRegisterData()" style="margin-left: auto;">↻ Refresh</button>
+            </div>
+
+            <div id="audit-table-container" style="overflow-x: auto;">
+                <table class="audit-table">
+                    <thead id="audit-table-head">
+                        <!-- Dynamic -->
+                    </thead>
+                    <tbody id="audit-table-body">
+                        <!-- Dynamic -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-modal" onclick="closeRegisterDialog()">Close</button>
+        </div>
+    </dialog>
+
+    <!-- Toast Banner -->
+    <div class="toast" id="toast-banner">
+        <span>✓</span>
+        <span id="toast-message">Notification</span>
     </div>
 
+    <!-- ==========================================
+         APPLICATION SCRIPTS
+    =========================================== -->
     <script>
-        function getShirtSvg(variant) {
-            const colors = {
+        // State
+        let allProducts = [];
+        let currentCategory = 'all';
+        let cart = []; // Array of { sku, product, variant, price, qty }
+        let currentCustomerIndex = 0;
+        const customersList = ['Walk-In Customer', 'John Doe', 'Jane Smith', 'Bob Wilson', 'Alice Brown'];
+        let activeDiscount = 0;
+        const KHR_RATE = 4100;
+
+        // Custom Product SVG Generators matching the exact screenshot aesthetics
+        function getProductGraphic(p) {
+            const sku = p.SKU || '';
+            const name = (p.Product || '').toLowerCase();
+            const variant = (p.Variant || '').toLowerCase();
+
+            // 1. Perfume: Yes I Am The Queen (Soft Pink Luxury Bottle)
+            if (name.includes('queen') || sku === 'PR-QEN') {
+                return `
+                <svg width="100" height="120" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Atomizer Cap -->
+                    <rect x="42" y="8" width="16" height="16" rx="2" fill="#1e293b" />
+                    <rect x="46" y="24" width="8" height="6" fill="#e2e8f0" />
+                    <!-- Flacon Body (Blush Pink) -->
+                    <rect x="25" y="30" width="50" height="74" rx="10" fill="#fed7e2" stroke="#fbb6ce" stroke-width="1.5" />
+                    <!-- Gold / Black Emblem -->
+                    <circle cx="50" cy="58" r="10" fill="#1e293b" />
+                    <path d="M47 55 L50 52 L53 55 L50 62 Z" fill="#f6e05e" />
+                    <!-- Label Text lines -->
+                    <rect x="36" y="76" width="28" height="2" rx="1" fill="#4a5568" opacity="0.6" />
+                    <rect x="40" y="81" width="20" height="2" rx="1" fill="#4a5568" opacity="0.4" />
+                </svg>`;
+            }
+
+            // 2. Perfume: Yes I Am The King Le (Midnight Black Bottle)
+            if (name.includes('king') || sku === 'PR-KNG') {
+                return `
+                <svg width="100" height="120" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="42" y="8" width="16" height="16" rx="3" fill="#0f172a" stroke="#d4af37" stroke-width="0.8"/>
+                    <rect x="46" y="24" width="8" height="6" fill="#d4af37" />
+                    <!-- Flacon Body (Glossy Black) -->
+                    <rect x="25" y="30" width="50" height="74" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
+                    <!-- Gold Royal Insignia -->
+                    <circle cx="50" cy="56" r="11" fill="#1e293b" stroke="#d4af37" stroke-width="1.5" />
+                    <circle cx="50" cy="56" r="7" fill="#d4af37" opacity="0.8" />
+                    <rect x="36" y="76" width="28" height="2" rx="1" fill="#d4af37" opacity="0.7" />
+                    <rect x="40" y="81" width="20" height="2" rx="1" fill="#d4af37" opacity="0.5" />
+                </svg>`;
+            }
+
+            // 3. Perfume: Cherry Delice (Glossy Ruby Red Bottle)
+            if (name.includes('cherry') || sku === 'PR-CHR') {
+                return `
+                <svg width="100" height="120" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Red / Gold Bulb Cap -->
+                    <ellipse cx="50" cy="18" rx="15" ry="10" fill="#b91c1c" stroke="#fca5a5" stroke-width="1"/>
+                    <rect x="45" y="28" width="10" height="6" fill="#d4af37" />
+                    <!-- Bottle Body -->
+                    <rect x="28" y="34" width="44" height="68" rx="12" fill="#f43f5e" stroke="#e11d48" stroke-width="1.5"/>
+                    <!-- Glass Gloss highlight -->
+                    <path d="M34 40 C34 40, 36 86, 36 92" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.4" />
+                    <rect x="36" y="58" width="28" height="14" rx="3" fill="#ffe4e6" />
+                    <rect x="40" y="64" width="20" height="2" rx="1" fill="#b91c1c" />
+                </svg>`;
+            }
+
+            // 4. Perfume: Chic Oriental (Amber & Black Bottle)
+            if (name.includes('oriental') || sku === 'PR-CHC') {
+                return `
+                <svg width="100" height="120" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="40" y="10" width="20" height="18" rx="3" fill="#0f172a" />
+                    <rect x="46" y="28" width="8" height="6" fill="#d97706" />
+                    <rect x="28" y="34" width="44" height="68" rx="6" fill="#1e293b" stroke="#78350f" stroke-width="1.5"/>
+                    <rect x="34" y="52" width="32" height="26" rx="2" fill="#d97706" stroke="#fef3c7" stroke-width="1" />
+                    <rect x="38" y="60" width="24" height="3" rx="1" fill="#0f172a" />
+                    <rect x="41" y="66" width="18" height="2" rx="1" fill="#0f172a" opacity="0.7"/>
+                </svg>`;
+            }
+
+            // 5. Perfume: Bleu Impérial (Deep Cobalt Navy Flacon)
+            if (name.includes('bleu') || name.includes('imperial') || sku === 'PR-BLU') {
+                return `
+                <svg width="100" height="120" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="41" y="8" width="18" height="18" rx="3" fill="#0f172a" stroke="#94a3b8" stroke-width="1"/>
+                    <rect x="46" y="26" width="8" height="6" fill="#cbd5e1" />
+                    <rect x="24" y="32" width="52" height="72" rx="8" fill="#1e3a8a" stroke="#1d4ed8" stroke-width="1.5"/>
+                    <!-- Dark Inner Frame -->
+                    <rect x="32" y="50" width="36" height="34" rx="4" fill="#0f172a" opacity="0.85"/>
+                    <rect x="36" y="62" width="28" height="3" rx="1" fill="#93c5fd" />
+                    <rect x="40" y="68" width="20" height="2" rx="1" fill="#93c5fd" opacity="0.6"/>
+                </svg>`;
+            }
+
+            // 6. Apparel Fashion Shirts (Black, White, Red, Premium)
+            const shirtColors = {
                 'black': '#1e293b',
                 'white': '#f8fafc',
                 'red': '#ef4444'
             };
-            const v = (variant || 'black').toLowerCase();
-            const fill = colors[v] || '#334155';
-            const stroke = v === 'white' ? '#94a3b8' : 'rgba(255,255,255,0.15)';
+            const fill = shirtColors[variant] || '#334155';
+            const stroke = variant === 'white' ? '#cbd5e1' : 'rgba(0,0,0,0.15)';
 
             return `
-            <svg width="86" height="86" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M30 18 L40 28 C45 32 55 32 60 28 L70 18 L88 32 L78 46 L70 40 L70 85 L30 85 L30 40 L22 46 L12 32 Z" 
                       fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"/>
                 <path d="M40 18 C45 25 55 25 60 18" stroke="${stroke}" stroke-width="2" fill="none"/>
+                ${name.includes('premium') ? '<circle cx="50" cy="40" r="2.5" fill="#f59e0b"/><circle cx="50" cy="52" r="2.5" fill="#f59e0b"/>' : ''}
             </svg>`;
         }
 
-        async function loadProducts() {
-            const container = document.getElementById('products-container');
+        // ------------------------------------------
+        // CATALOG MANAGEMENT & RENDERING
+        // ------------------------------------------
+        async function loadCatalog() {
             try {
                 const res = await fetch('/api/products');
-                const products = await res.json();
-                
-                if (!products || products.length === 0) {
-                    container.innerHTML = '<p style="color:#64748b;">No products found in register database.</p>';
-                    return;
-                }
-
-                container.innerHTML = products.map(p => {
-                    const isLow = p.Stock <= (p.Low_Stock_Threshold || 5);
-                    const stockTag = isLow 
-                        ? `<span class="card-stock-tag tag-low-stock">Low Stock: ${p.Stock}</span>`
-                        : `<span class="card-stock-tag tag-in-stock">In Stock: ${p.Stock}</span>`;
-
-                    return `
-                    <div class="product-card" id="card-${p.SKU}">
-                        <div class="card-img-wrap">
-                            ${stockTag}
-                            ${getShirtSvg(p.Variant)}
-                        </div>
-                        <span class="sku-code">${p.SKU}</span>
-                        <h4 class="product-title">${p.Product}</h4>
-                        <span class="product-variant">Color: ${p.Variant}</span>
-                        
-                        <div class="price-row">
-                            <span class="price-val">$${p.Price}</span>
-                            <span class="price-stock">${p.Stock} on shelf</span>
-                        </div>
-
-                        <div class="card-actions">
-                            <div class="qty-stepper">
-                                <button class="qty-btn" onclick="changeQty('${p.SKU}', -1)">-</button>
-                                <span class="qty-display" id="qty-${p.SKU}">1</span>
-                                <button class="qty-btn" onclick="changeQty('${p.SKU}', 1)">+</button>
-                            </div>
-                            <button class="btn-quick-order" onclick="quickOrder('${p.Product}', '${p.Variant}', '${p.SKU}')">
-                                <span>⚡ Ring Up</span>
-                            </button>
-                        </div>
-                    </div>`;
-                }).join('');
+                allProducts = await res.json();
+                renderCatalog();
             } catch (err) {
                 console.error("Error loading products:", err);
+                showToast("Error connecting to inventory");
             }
         }
 
-        function changeQty(sku, delta) {
-            const el = document.getElementById(`qty-${sku}`);
-            let val = parseInt(el.textContent) + delta;
-            if (val < 1) val = 1;
-            if (val > 50) val = 50;
-            el.textContent = val;
-        }
+        function renderCatalog(searchQuery = '') {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
 
-        function quickOrder(product, variant, sku) {
-            const qty = document.getElementById(`qty-${sku}`).textContent;
-            const message = `I want ${qty} ${variant} ${product}`;
-            document.getElementById('order-input').value = message;
-            submitCustomOrder();
-        }
+            let filtered = allProducts.filter(p => {
+                // Category match
+                if (currentCategory === 'beauty') {
+                    if (p.Category && p.Category.toLowerCase() !== 'beauty') return false;
+                    if (!p.Category && !p.Product.toLowerCase().includes('queen') && !p.Product.toLowerCase().includes('delice')) return false;
+                } else if (currentCategory === 'apparel') {
+                    if (p.Category && p.Category.toLowerCase() !== 'apparel') return false;
+                    if (!p.Category && !p.Product.toLowerCase().includes('shirt')) return false;
+                } else if (currentCategory === 'other') {
+                    if (p.Category && (p.Category.toLowerCase() === 'beauty' || p.Category.toLowerCase() === 'apparel')) return false;
+                }
 
-        function runPreset(text) {
-            document.getElementById('order-input').value = text;
-            submitCustomOrder();
-        }
+                // Search query match
+                if (searchQuery.trim()) {
+                    const q = searchQuery.toLowerCase();
+                    const name = (p.Product || '').toLowerCase();
+                    const variant = (p.Variant || '').toLowerCase();
+                    const sku = (p.SKU || '').toLowerCase();
+                    return name.includes(q) || variant.includes(q) || sku.includes(q);
+                }
+                return true;
+            });
 
-        async function submitCustomOrder() {
-            const input = document.getElementById('order-input');
-            const message = input.value.trim();
-            const customer = document.getElementById('customer-name').value.trim() || 'Customer';
-
-            if (!message) {
-                input.focus();
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #94a3b8;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">🔍</div>
+                        <div style="font-size: 14px; font-weight: 600; color: #475569;">No products found</div>
+                        <div style="font-size: 12px;">Try adjusting your search or category filter.</div>
+                    </div>`;
                 return;
             }
 
-            const btn = document.getElementById('process-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<span>Processing POS...</span>';
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => addProductToCart(p);
+
+                const stock = parseInt(p.Stock) || 0;
+                let stockClass = '';
+                if (stock <= 0) stockClass = 'out';
+                else if (stock <= 5) stockClass = 'low';
+
+                card.innerHTML = `
+                    <div class="product-img-box">
+                        ${getProductGraphic(p)}
+                    </div>
+                    <div class="product-title">${p.Product}</div>
+                    <div class="product-variant">${p.Variant || p.SKU}</div>
+                    <div class="product-footer">
+                        <span class="product-price">$${Number(p.Price).toFixed(2)}</span>
+                        <span class="product-stock ${stockClass}">${stock > 0 ? `${stock} in stock` : 'Out of stock'}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function setCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderCatalog(document.getElementById('pos-search-input').value);
+        }
+
+        function filterCatalog(val) {
+            renderCatalog(val);
+        }
+
+        async function syncCatalog(showToastMsg = true) {
+            await loadCatalog();
+            if (showToastMsg) showToast("Shelf inventory synchronized with Google Sheets");
+        }
+
+        // ------------------------------------------
+        // CART & CURRENT ORDER MANAGEMENT
+        // ------------------------------------------
+        function addProductToCart(product, qtyToAdd = 1) {
+            const existing = cart.find(item => item.sku === product.SKU);
+            if (existing) {
+                existing.qty += qtyToAdd;
+            } else {
+                cart.push({
+                    sku: product.SKU,
+                    product: product.Product,
+                    variant: product.Variant,
+                    price: parseFloat(product.Price) || 0,
+                    qty: qtyToAdd
+                });
+            }
+            updateCartUI();
+            showToast(`Added ${product.Product} to order`);
+        }
+
+        function changeCartItemQty(sku, delta) {
+            const item = cart.find(i => i.sku === sku);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.sku !== sku);
+            }
+            updateCartUI();
+        }
+
+        function removeCartItem(sku) {
+            cart = cart.filter(i => i.sku !== sku);
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = [];
+            activeDiscount = 0;
+            document.getElementById('discount-label').textContent = 'Add Discount';
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const emptyView = document.getElementById('cart-empty-view');
+            const itemsContainer = document.getElementById('cart-items-container');
+            const countBadge = document.getElementById('cart-item-count');
+            const clearBtn = document.getElementById('btn-clear-cart');
+            const payBtn = document.getElementById('btn-pay-action');
+            const payBtnLabel = document.getElementById('pay-btn-label');
+
+            const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
+            countBadge.textContent = totalItemsCount;
+
+            if (cart.length === 0) {
+                emptyView.style.display = 'flex';
+                itemsContainer.style.display = 'none';
+                clearBtn.style.display = 'none';
+                payBtn.classList.remove('active');
+                payBtnLabel.textContent = 'Pay $0.00';
+
+                document.getElementById('summary-subtotal').textContent = '$0.00';
+                document.getElementById('summary-total').textContent = '$0.00';
+                document.getElementById('summary-riel').textContent = '0 ៛';
+                return;
+            }
+
+            emptyView.style.display = 'none';
+            itemsContainer.style.display = 'flex';
+            clearBtn.style.display = 'inline-block';
+            payBtn.classList.add('active');
+
+            // Render line items
+            itemsContainer.innerHTML = '';
+            let subtotal = 0;
+
+            cart.forEach(item => {
+                const lineTotal = item.price * item.qty;
+                subtotal += lineTotal;
+
+                const itemRow = document.createElement('div');
+                itemRow.className = 'cart-item';
+                itemRow.innerHTML = `
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.product}</div>
+                        <div class="cart-item-meta">${item.variant} · $${item.price.toFixed(2)}</div>
+                    </div>
+                    <div class="cart-item-controls">
+                        <button class="qty-btn" onclick="changeCartItemQty('${item.sku}', -1)">-</button>
+                        <span class="qty-val">${item.qty}</span>
+                        <button class="qty-btn" onclick="changeCartItemQty('${item.sku}', 1)">+</button>
+                    </div>
+                    <div class="cart-item-price">$${lineTotal.toFixed(2)}</div>
+                    <button class="cart-item-del" onclick="removeCartItem('${item.sku}')">✕</button>
+                `;
+                itemsContainer.appendChild(itemRow);
+            });
+
+            const finalTotal = Math.max(0, subtotal - activeDiscount);
+            const rielTotal = Math.round(finalTotal * KHR_RATE);
+
+            document.getElementById('summary-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('summary-total').textContent = `$${finalTotal.toFixed(2)}`;
+            document.getElementById('summary-riel').textContent = `${rielTotal.toLocaleString()} ៛`;
+            payBtnLabel.textContent = `Pay $${finalTotal.toFixed(2)}`;
+        }
+
+        function cycleCustomer() {
+            currentCustomerIndex = (currentCustomerIndex + 1) % customersList.length;
+            const name = customersList[currentCustomerIndex];
+            document.getElementById('current-customer-label').textContent = name;
+            showToast(`Switched customer: ${name}`);
+        }
+
+        function promptDiscount() {
+            const promo = prompt("Enter Discount Amount ($) or Promo Code:", "5");
+            if (promo !== null) {
+                const amt = parseFloat(promo);
+                if (!isNaN(amt) && amt > 0) {
+                    activeDiscount = amt;
+                    document.getElementById('discount-label').textContent = `-$${amt.toFixed(2)}`;
+                    updateCartUI();
+                    showToast(`Discount applied: -$${amt.toFixed(2)}`);
+                } else if (promo.toUpperCase() === 'VIP10') {
+                    activeDiscount = 10;
+                    document.getElementById('discount-label').textContent = "-$10.00 (VIP10)";
+                    updateCartUI();
+                    showToast("VIP10 Coupon applied!");
+                } else {
+                    activeDiscount = 0;
+                    document.getElementById('discount-label').textContent = "Add Discount";
+                    updateCartUI();
+                }
+            }
+        }
+
+        function holdCurrentTicket() {
+            if (cart.length === 0) {
+                showToast("Cart is empty — nothing to hold");
+                return;
+            }
+            showToast(`Ticket held for ${customersList[currentCustomerIndex]} (#T-8824)`);
+            clearCart();
+        }
+
+        // ------------------------------------------
+        // CHECKOUT & AI PROCESSING PIPELINE
+        // ------------------------------------------
+        async function executeCheckout() {
+            if (cart.length === 0) {
+                showToast("Please tap products or scan barcodes to add items first");
+                return;
+            }
+
+            // Construct natural language summary of cart items
+            const orderSummary = cart.map(i => `${i.qty} ${i.variant} ${i.product}`).join(' and ');
+            const promptMessage = `Customer wants ${orderSummary}`;
+            const customerName = customersList[currentCustomerIndex];
+
+            await sendOrderToAgent(promptMessage, customerName);
+        }
+
+        async function processSearchPrompt() {
+            const input = document.getElementById('pos-search-input');
+            const text = input.value.trim();
+            if (!text) {
+                showToast("Type an order message or scan a barcode");
+                return;
+            }
+            const customerName = customersList[currentCustomerIndex];
+            await sendOrderToAgent(text, customerName);
+            input.value = '';
+        }
+
+        function handleSearchKey(event) {
+            if (event.key === 'Enter') {
+                processSearchPrompt();
+            }
+        }
+
+        async function runPresetScenario(scenario) {
+            const presets = {
+                'approve': {
+                    msg: "I want 2 black Basic Shirts",
+                    customer: "John Doe"
+                },
+                'escalate': {
+                    msg: "I need 12 black Basic Shirts",
+                    customer: "Jane Smith"
+                },
+                'suggest': {
+                    msg: "I want 25 black Basic Shirts",
+                    customer: "Bob Wilson"
+                },
+                'clarify': {
+                    msg: "Do you have blue jeans?",
+                    customer: "Alice Brown"
+                }
+            };
+
+            const selected = presets[scenario];
+            if (!selected) return;
+
+            document.getElementById('current-customer-label').textContent = selected.customer;
+            await sendOrderToAgent(selected.msg, selected.customer);
+        }
+
+        async function sendOrderToAgent(message, customer) {
+            const payBtn = document.getElementById('btn-pay-action');
+            payBtn.disabled = true;
+            payBtn.innerHTML = `<span>Processing AI...</span>`;
 
             try {
                 const res = await fetch('/api/process', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message, customer })
+                    body: JSON.stringify({ message: message, customer: customer })
                 });
                 const data = await res.json();
-                
+
+                // Open Decision & Receipt Modal
                 showDecisionModal(data, message, customer);
-                loadProducts(); // Update shelf stock immediately
+                
+                // Refresh catalog inventory in background
+                syncCatalog(false);
             } catch (err) {
+                console.error("Order error:", err);
                 alert("POS Processing Error: " + err);
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<span>Process Order</span><span>→</span>';
+                payBtn.disabled = false;
+                updateCartUI();
             }
         }
 
-        function showDecisionModal(data, originalMessage, customer) {
-            const modal = document.getElementById('decision-modal');
-            const badge = document.getElementById('decision-badge');
-            const statusText = document.getElementById('decision-status-text');
-            const orderIdText = document.getElementById('decision-order-id');
-            const reasonText = document.getElementById('decision-reason');
-            const telegramPreview = document.getElementById('telegram-preview');
+        function showDecisionModal(data, rawMessage, customer) {
+            const dialog = document.getElementById('decision-dialog');
+            const statusBox = document.getElementById('modal-status-box');
+            const statusText = document.getElementById('modal-status-text');
+            const orderIdTag = document.getElementById('modal-order-id');
+            const reasonText = document.getElementById('modal-reason-text');
+            const telegramText = document.getElementById('modal-telegram-text');
 
-            const status = (data.status || 'unknown').toLowerCase();
-            badge.className = `decision-badge-banner decision-${status}`;
-            statusText.textContent = status.replace('_', ' ').toUpperCase();
-            orderIdText.textContent = data.order_id || 'ORD-N/A';
+            const status = data.status || 'unknown';
+            orderIdTag.textContent = data.order_id || 'ORD-TERMINAL';
 
+            statusBox.className = `status-box ${status}`;
+
+            let label = '● APPROVED';
             let desc = '';
-            let tele = '';
+            let teleMsg = '';
 
             if (status === 'approved') {
-                desc = `Transaction autonomously approved and fulfilled. Total value is $${data.total} (< $100 escalation threshold), and register stock was verified. Inventory was reduced on shelf, and a digital receipt was logged to Google Sheets and Telegram.`;
-                tele = `✅ Order Approved (AURA POS)\n\nOrder ID: ${data.order_id}\nTotal: $${data.total}\nReceipt generated and stock deducted.`;
+                label = '● APPROVED (AUTO-FULFILL)';
+                desc = `Transaction autonomously approved and fulfilled. Total value is $${data.total || '0'} (< $100 escalation threshold), and register shelf stock was verified. Inventory was reduced on shelf, and digital receipt was logged to Google Sheets and Telegram.`;
+                teleMsg = `✅ Order Approved (Elora POS)\n\nOrder ID: ${data.order_id}\nCustomer: ${customer}\nTotal: $${data.total}\nReceipt generated and shelf stock deducted.`;
             } else if (status === 'escalated') {
-                desc = `Transaction value is $${data.total} (>= $100 threshold). Per store policy, high-value orders require Manager Override sign-off. An escalation alert was dispatched to the store manager/owner via Telegram.`;
-                tele = `⚠️ POS Escalation Alert\n\nOrder ID: ${data.order_id}\nCustomer: ${customer}\nTotal: $${data.total}\nReason: Value >= $100. Pending manager approval.`;
+                label = '● MANAGER OVERRIDE ESCALATED';
+                desc = `Transaction total is $${data.total} (>= $100 threshold). Per store policy, high-value purchases require Manager Override sign-off. An escalation notification was dispatched to store manager via Telegram.`;
+                teleMsg = `⚠️ POS Manager Escalation Alert\n\nOrder ID: ${data.order_id}\nCustomer: ${customer}\nTotal: $${data.total}\nReason: Total >= $100 requires manager review.\nReply APPROVE to authorize.`;
             } else if (status === 'alternative_suggested') {
+                label = '● ALTERNATIVE VARIANTS OFFERED';
                 desc = `Requested item quantity exceeds on-shelf stock. The POS agent autonomously verified inventory and offered available substitute color variants from backstock without prematurely reducing shelf counts.`;
-                tele = `📦 Stock Notice — ${data.order_id}\n\nShelf quantity insufficient for requested color.\nAlternative available variants offered.\nTotal: $${data.total}\nReply YES to confirm swap.`;
+                teleMsg = `📦 Stock Notice — ${data.order_id}\n\nShelf quantity insufficient for requested variant.\nAlternative available color variants offered.\nTotal: $${data.total}\nCustomer notified to confirm swap.`;
             } else {
-                desc = `Item was not found in register catalog or quantity was ambiguous. The POS terminal paused fulfillment and requested SKU clarification.`;
-                tele = `❓ Item Inquiry — ${data.order_id}\n\nItem not recognized in active catalog.\nPlease provide SKU or color variant.`;
+                label = '● CATALOG CLARIFICATION REQUIRED';
+                desc = `Item was not found in register catalog or quantity details were incomplete. The POS terminal paused fulfillment and requested SKU clarification.`;
+                teleMsg = `❓ Item Inquiry — ${data.order_id}\n\nItem not recognized in active POS catalog.\nPlease provide SKU or color variant.`;
             }
 
+            statusText.innerHTML = `<span>${label}</span>`;
             reasonText.textContent = desc;
-            telegramPreview.textContent = tele;
+            telegramText.textContent = teleMsg;
 
-            modal.classList.add('active');
+            // Open modal via native dialog API
+            dialog.showModal();
         }
 
-        function closeDecisionModal() {
-            document.getElementById('decision-modal').classList.remove('active');
+        function closeDecisionDialog(resetSale = false) {
+            const dialog = document.getElementById('decision-dialog');
+            dialog.close();
+            if (resetSale) {
+                clearCart();
+                showToast("Ready for new customer");
+            }
         }
 
-        async function openAuditModal() {
-            const modal = document.getElementById('audit-modal');
-            modal.classList.add('active');
+        function printReceiptMock() {
+            window.print();
+        }
+
+        // ------------------------------------------
+        // REGISTER AUDIT DIALOG
+        // ------------------------------------------
+        let currentAuditTab = 'orders';
+
+        function openRegisterDialog() {
+            const dialog = document.getElementById('register-dialog');
+            dialog.showModal();
+            fetchRegisterData();
+        }
+
+        function closeRegisterDialog() {
+            const dialog = document.getElementById('register-dialog');
+            dialog.close();
+        }
+
+        function switchAuditTab(tab) {
+            currentAuditTab = tab;
+            document.getElementById('btn-tab-orders').classList.toggle('active', tab === 'orders');
+            document.getElementById('btn-tab-logs').classList.toggle('active', tab === 'logs');
+            fetchRegisterData();
+        }
+
+        async function fetchRegisterData() {
+            const head = document.getElementById('audit-table-head');
+            const body = document.getElementById('audit-table-body');
+            body.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 20px;">Loading live records...</td></tr>`;
 
             try {
-                const [ordersRes, logsRes] = await Promise.all([
-                    fetch('/api/orders'),
-                    fetch('/api/logs')
-                ]);
-                const orders = await ordersRes.json();
-                const logs = await logsRes.json();
-
-                const ordersTbody = document.getElementById('orders-table-body');
-                if (orders && orders.length > 0) {
-                    ordersTbody.innerHTML = orders.slice(-8).reverse().map(o => `
+                if (currentAuditTab === 'orders') {
+                    const res = await fetch('/api/orders');
+                    const orders = await res.json();
+                    
+                    head.innerHTML = `
                         <tr>
-                            <td style="font-family:'JetBrains Mono'; color:#60a5fa;">${o.order_id}</td>
-                            <td>${o.customer}</td>
-                            <td>${o.product} (${o.variant || 'N/A'}) x${o.quantity}</td>
-                            <td style="font-weight:700; color:white;">$${o.total_value}</td>
-                            <td><span style="padding:2px 6px; border-radius:4px; font-size:0.7rem; background:#065f46; color:#6ee7b7;">${o.status}</span></td>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>SKU</th>
+                            <th>Total</th>
+                            <th>Status</th>
                         </tr>
-                    `).join('');
-                }
+                    `;
+                    body.innerHTML = '';
+                    if (!orders || orders.length === 0) {
+                        body.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 20px;">No registered orders yet. Run a transaction to view live logs.</td></tr>`;
+                        return;
+                    }
+                    orders.slice().reverse().slice(0, 10).forEach(o => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="font-family: monospace; font-weight: 600;">${o.Order_ID || o.order_id || 'N/A'}</td>
+                            <td>${o.Customer_Name || o.customer || 'Customer'}</td>
+                            <td>${o.SKU || 'SKU'}</td>
+                            <td style="font-weight: 700;">$${o.Total_Price || o.total || 0}</td>
+                            <td><span style="font-weight: 600; color: #059669;">${o.Status || 'Approved'}</span></td>
+                        `;
+                        body.appendChild(tr);
+                    });
+                } else {
+                    const res = await fetch('/api/logs');
+                    const logs = await res.json();
 
-                const logsTbody = document.getElementById('logs-table-body');
-                if (logs && logs.length > 0) {
-                    logsTbody.innerHTML = logs.slice(-8).reverse().map(l => `
+                    head.innerHTML = `
                         <tr>
-                            <td style="font-family:'JetBrains Mono';">${l.log_id}</td>
-                            <td style="font-weight:600; color:#e2e8f0;">${l.action}</td>
-                            <td style="font-family:'JetBrains Mono';">${l.order_id}</td>
-                            <td>Cust: ${l.customer_notified} / Owner: ${l.owner_notified}</td>
+                            <th>Log ID</th>
+                            <th>Action</th>
+                            <th>Order ID</th>
+                            <th>Alert Dispatched</th>
                         </tr>
-                    `).join('');
+                    `;
+                    body.innerHTML = '';
+                    if (!logs || logs.length === 0) {
+                        body.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 20px;">No audit traces found.</td></tr>`;
+                        return;
+                    }
+                    logs.slice().reverse().slice(0, 10).forEach(l => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="font-family: monospace;">${l.Log_ID || 'LOG'}</td>
+                            <td style="font-weight: 600;">${l.Action_Taken || 'Action'}</td>
+                            <td style="font-family: monospace;">${l.Order_ID || '-'}</td>
+                            <td><span style="color: #2563eb;">${l.Notification_Sent ? '✓ Telegram Sent' : 'No'}</span></td>
+                        `;
+                        body.appendChild(tr);
+                    });
                 }
             } catch (err) {
-                console.error("Error loading audit data:", err);
+                console.error("Audit load error:", err);
+                body.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444; padding: 20px;">Failed to fetch records.</td></tr>`;
             }
         }
 
-        function closeAuditModal() {
-            document.getElementById('audit-modal').classList.remove('active');
+        // ------------------------------------------
+        // UTILITIES
+        // ------------------------------------------
+        function showToast(message) {
+            const toast = document.getElementById('toast-banner');
+            const msgSpan = document.getElementById('toast-message');
+            msgSpan.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2600);
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeDecisionModal();
-                closeAuditModal();
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function switchMainTab(tab) {
+            document.querySelectorAll('.header-center .pill-btn').forEach(b => b.classList.remove('active'));
+            const el = document.getElementById(`tab-${tab}`);
+            if (el) el.classList.add('active');
+        }
+
+        // Light-dismiss dialog fallback for older browsers
+        document.querySelectorAll('dialog').forEach(dialog => {
+            if (!('closedBy' in HTMLDialogElement.prototype)) {
+                dialog.addEventListener('click', (event) => {
+                    if (event.target !== dialog) return;
+                    const rect = dialog.getBoundingClientRect();
+                    const isInside = (
+                        rect.top <= event.clientY &&
+                        event.clientY <= rect.top + rect.height &&
+                        rect.left <= event.clientX &&
+                        event.clientX <= rect.left + rect.width
+                    );
+                    if (!isInside) dialog.close();
+                });
             }
         });
 
-        // Initial Load
-        loadProducts();
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCatalog();
+        });
     </script>
 </body>
 </html>
