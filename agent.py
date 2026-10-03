@@ -113,6 +113,199 @@ class MockSheetsClient:
         return True
 
 
+try:
+    import openpyxl
+    HAS_OPENPYXL = True
+except ImportError:
+    HAS_OPENPYXL = False
+
+EXCEL_FILE_PATH = Path(__file__).parent / "inventory.xlsx"
+
+
+class ExcelSheetsClient:
+    """Client for reading/writing persistent data to local Excel workbook (inventory.xlsx)."""
+
+    def __init__(self, file_path=EXCEL_FILE_PATH):
+        self.file_path = Path(file_path)
+        if not self.file_path.exists():
+            try:
+                from scripts.init_excel_inventory import create_excel_inventory
+                create_excel_inventory(str(self.file_path))
+            except Exception as e:
+                print(f"  [Excel] Could not initialize Excel file: {e}")
+
+    def read_products(self) -> list[dict]:
+        """Read all products dynamically from the Products worksheet."""
+        if not HAS_OPENPYXL or not self.file_path.exists():
+            return [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
+        try:
+            wb = openpyxl.load_workbook(self.file_path, data_only=True)
+            if "Products" not in wb.sheetnames:
+                wb.close()
+                return [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
+            ws = wb["Products"]
+            rows = list(ws.iter_rows(values_only=True))
+            wb.close()
+            if not rows or len(rows) < 2:
+                return [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
+            headers = [str(h).strip() if h is not None else f"col_{i}" for i, h in enumerate(rows[0])]
+            products = []
+            for r in rows[1:]:
+                if not any(r):
+                    continue
+                item = {}
+                for h, val in zip(headers, r):
+                    if h in ("Price", "Stock", "Low_Stock_Threshold"):
+                        try:
+                            if isinstance(val, str):
+                                val = float(val.replace("$", "").replace(",", "").strip())
+                            item[h] = int(val) if h in ("Stock", "Low_Stock_Threshold") else float(val)
+                        except (ValueError, TypeError):
+                            item[h] = 0
+                    else:
+                        item[h] = str(val).strip() if val is not None else ""
+                products.append(item)
+            return products
+        except Exception as e:
+            print(f"  [Excel] Error reading Products: {e}")
+            return [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
+
+    def update_stock(self, sku: str, new_stock: int) -> bool:
+        """Update stock for a product by SKU and save Excel workbook."""
+        if not HAS_OPENPYXL or not self.file_path.exists():
+            return False
+        try:
+            wb = openpyxl.load_workbook(self.file_path)
+            if "Products" not in wb.sheetnames:
+                wb.close()
+                return False
+            ws = wb["Products"]
+            sku_col = None
+            stock_col = None
+            for col_idx, cell in enumerate(ws[1], start=1):
+                val = str(cell.value).strip().lower() if cell.value else ""
+                if val == "sku":
+                    sku_col = col_idx
+                elif val == "stock":
+                    stock_col = col_idx
+
+            if not sku_col or not stock_col:
+                sku_col, stock_col = 1, 5
+
+            updated = False
+            for row in range(2, ws.max_row + 1):
+                cell_sku = str(ws.cell(row=row, column=sku_col).value or "").strip()
+                if cell_sku.upper() == sku.strip().upper():
+                    ws.cell(row=row, column=stock_col, value=int(new_stock))
+                    updated = True
+                    break
+
+            if updated:
+                wb.save(self.file_path)
+                print(f"  [Excel] Synced updated stock for {sku}: {new_stock} to {self.file_path.name}")
+            wb.close()
+            return updated
+        except Exception as e:
+            print(f"  [Excel] Error updating stock in Excel: {e}")
+            return False
+
+    def append_order(self, order: dict) -> bool:
+        """Append an order to Orders worksheet and save Excel workbook."""
+        if not HAS_OPENPYXL or not self.file_path.exists():
+            return False
+        try:
+            wb = openpyxl.load_workbook(self.file_path)
+            if "Orders" not in wb.sheetnames:
+                ws = wb.create_sheet(title="Orders")
+                ws.append(["Order_ID", "Customer_Name", "Product", "Variant", "Quantity", "Total_Price", "Status", "Timestamp", "Notes"])
+            else:
+                ws = wb["Orders"]
+            ws.append([
+                order.get("order_id", ""),
+                order.get("customer", ""),
+                order.get("product", ""),
+                order.get("variant", ""),
+                order.get("quantity", 0),
+                order.get("total_value", 0),
+                order.get("status", ""),
+                order.get("timestamp", ""),
+                order.get("notes", ""),
+            ])
+            wb.save(self.file_path)
+            print(f"  [Excel] Recorded order {order.get('order_id')} in {self.file_path.name}")
+            wb.close()
+            return True
+        except Exception as e:
+            print(f"  [Excel] Error appending order to Excel: {e}")
+            return False
+
+    def append_log(self, log: dict) -> bool:
+        """Append a log entry to Logs worksheet and save Excel workbook."""
+        if not HAS_OPENPYXL or not self.file_path.exists():
+            return False
+        try:
+            wb = openpyxl.load_workbook(self.file_path)
+            if "Logs" not in wb.sheetnames:
+                ws = wb.create_sheet(title="Logs")
+                ws.append(["Log_ID", "Timestamp", "Action_Taken", "Order_ID", "Details", "Notification_Sent"])
+            else:
+                ws = wb["Logs"]
+            ws.append([
+                log.get("log_id", ""),
+                log.get("timestamp", ""),
+                log.get("action", ""),
+                log.get("order_id", ""),
+                log.get("details", ""),
+                "Yes" if log.get("customer_notified") or log.get("owner_notified") else "No"
+            ])
+            wb.save(self.file_path)
+            wb.close()
+            return True
+        except Exception as e:
+            print(f"  [Excel] Error appending log to Excel: {e}")
+            return False
+
+    @property
+    def orders(self) -> list[dict]:
+        """Read all orders from Orders sheet for API."""
+        if not HAS_OPENPYXL or not self.file_path.exists():
+            return []
+        try:
+            wb = openpyxl.load_workbook(self.file_path, data_only=True)
+            if "Orders" not in wb.sheetnames:
+                wb.close()
+                return []
+            ws = wb["Orders"]
+            rows = list(ws.iter_rows(values_only=True))
+            wb.close()
+            if len(rows) < 2:
+                return []
+            headers = [str(h) for h in rows[0]]
+            return [dict(zip(headers, r)) for r in rows[1:] if any(r)]
+        except Exception:
+            return []
+
+    @property
+    def logs(self) -> list[dict]:
+        """Read all logs from Logs sheet for API."""
+        if not HAS_OPENPYXL or not self.file_path.exists():
+            return []
+        try:
+            wb = openpyxl.load_workbook(self.file_path, data_only=True)
+            if "Logs" not in wb.sheetnames:
+                wb.close()
+                return []
+            ws = wb["Logs"]
+            rows = list(ws.iter_rows(values_only=True))
+            wb.close()
+            if len(rows) < 2:
+                return []
+            headers = [str(h) for h in rows[0]]
+            return [dict(zip(headers, r)) for r in rows[1:] if any(r)]
+        except Exception:
+            return []
+
+
 class GoogleSheetsClient:
     """Client for reading/writing Google Sheets data."""
 
@@ -356,11 +549,11 @@ class AIBusinessAgent:
                 self.sheets = GoogleSheetsClient(GOOGLE_SHEET_ID, GOOGLE_CREDENTIALS_FILE, GOOGLE_TOKEN_FILE)
                 print("  [Init] Google Sheets connected")
             except Exception as e:
-                print(f"  [Init] Google Sheets connection error: {e}. Falling back to mock sheets.")
-                self.sheets = MockSheetsClient()
+                print(f"  [Init] Google Sheets connection error: {e}. Falling back to persistent Excel.")
+                self.sheets = ExcelSheetsClient()
         else:
-            print("  [Init] Google Sheets credentials not configured. Using local mock inventory.")
-            self.sheets = MockSheetsClient()
+            print("  [Init] Using persistent Excel spreadsheet inventory (inventory.xlsx)")
+            self.sheets = ExcelSheetsClient()
 
     def process_order(self, customer_message: str, customer_name: str = "Customer") -> dict:
         """

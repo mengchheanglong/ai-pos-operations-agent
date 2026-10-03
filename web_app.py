@@ -8,7 +8,7 @@ import os
 import sys
 import json
 from datetime import datetime, timezone
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from agent import AIBusinessAgent
@@ -53,6 +53,26 @@ def get_logs():
     return jsonify(logs)
 
 
+@app.route("/api/download-excel")
+def download_excel():
+    excel_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.xlsx")
+    if os.path.exists(excel_path):
+        return send_file(excel_path, as_attachment=True, download_name="inventory.xlsx")
+    return jsonify({"error": "Excel file not found"}), 404
+
+
+@app.route("/api/sheet-info")
+def sheet_info():
+    sheet_id = os.environ.get("GOOGLE_SHEET_ID", "1Q3aTYv-3WpF2pX1QEFlsbhUbSMuis6XI6DrjQQnGR5o")
+    excel_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.xlsx")
+    return jsonify({
+        "excel_local_path": excel_path,
+        "excel_exists": os.path.exists(excel_path),
+        "google_sheet_url": f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit",
+        "google_sheet_id": sheet_id
+    })
+
+
 @app.route("/api/health")
 def health():
     return jsonify({
@@ -60,6 +80,7 @@ def health():
         "deepseek_configured": bool(os.environ.get("DEEPSEEK_API_KEY")),
         "telegram_configured": bool(os.environ.get("TELEGRAM_BOT_TOKEN")),
         "sheets_configured": bool(os.environ.get("GOOGLE_SHEET_ID") or agent.sheets),
+        "excel_persisted": os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.xlsx")),
     })
 
 
