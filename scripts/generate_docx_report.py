@@ -259,8 +259,11 @@ def build_word_report():
     h3.paragraph_format.space_after = Pt(6)
 
     doc.add_paragraph(
-        "The operations workflow comprises 10 distinct, sequential stages (surpassing the assignment minimum requirement of 5 steps), "
-        "highlighting three AI decision points and a 5-way autonomous branching mechanism."
+        "The operations workflow comprises 10 distinct operational capabilities organized into a 5-stage autonomous pipeline "
+        "(surpassing the assignment minimum requirement of 5 steps). Stages 1 through 4 handle order ingestion, LLM intent extraction, "
+        "and inventory reasoning. Stage 5 acts as an autonomous multi-path decision router that dispatches the request into one of five "
+        "mutually exclusive operational branches (Approve, Escalate, Suggest Alternative, Clarify, Reject), executing branch-specific downstream "
+        "actions (stock deduction, order logging, Telegram alerts, and audit logging) before returning a structured receipt."
     )
 
     # Embed Workflow Diagram Image
@@ -274,24 +277,24 @@ def build_word_report():
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p_cap.paragraph_format.space_after = Pt(10)
-        r_cap = p_cap.add_run("Figure 1: End-to-End 10-Step AI Operations Workflow Diagram")
+        r_cap = p_cap.add_run("Figure 1: End-to-End Autonomous AI Operations Architecture & Branch-Specific Routing")
         r_cap.font.size = Pt(9)
         r_cap.font.italic = True
         r_cap.font.color.rgb = C_MUTED
 
     # Workflow Steps Table
     wf_table_data = [
-        ("Step #", "Action Stage", "Component / Tool", "Description"),
-        ("1", "Receive Request", "Webhook / Web / CLI", "Customer message enters system asynchronously."),
-        ("2", "Extract Order Intent", "DeepSeek LLM (Decision 1)", "AI parses product name, variant, requested quantity, and intent."),
-        ("3", "Check Inventory", "Google Sheets API", "Reads real-time stock levels, unit pricing, and thresholds."),
-        ("4", "Evaluate Fulfillment", "DeepSeek LLM (Decision 2 & 3)", "Compares requested quantity against stock and checks business thresholds."),
-        ("5", "Route Workflow", "Autonomous Router", "Dynamically routes to 1 of 5 paths: approve, escalate, suggest, clarify, reject."),
-        ("6", "Execute Inventory Action", "Google Sheets API", "Deducts stock on approval; holds changes on escalation or suggestion."),
-        ("7", "Record Order", "Google Sheets (Orders Sheet)", "Logs order ID, customer name, SKU, price, timestamp, and status."),
-        ("8", "Notify Customer", "Telegram Bot API", "Transmits formatted HTML order confirmation or alternative proposals to customer."),
-        ("9", "Alert Business Owner", "Telegram Bot API", "Transmits urgent escalation message with details if order >= $100."),
-        ("10", "Append Audit Trail", "Google Sheets (Logs Sheet)", "Appends complete trace (inputs, decisions, notifications) to Logs tab."),
+        ("Capability #", "Operational Stage", "Component / Tool", "Description & Execution Condition"),
+        ("1", "Order Intake", "Webhook / Web POS / CLI", "Customer order enters system via Web POS terminal, Telegram, or webhook."),
+        ("2", "Extract Order Intent", "DeepSeek LLM (Decision 1)", "AI extracts product name, variant, requested quantity, and intent into JSON."),
+        ("3", "Read Live Inventory", "Google Sheets / Excel", "Fetches current shelf stock levels, SKU mappings, and threshold values."),
+        ("4", "Evaluate Fulfillment", "DeepSeek LLM (Decisions 2 & 3)", "AI evaluates stock availability, threshold rules ($100 rule), and product validity."),
+        ("5", "Autonomous Route", "5-Way AI Router", "Dynamically routes to 1 of 5 paths: approve, escalate, suggest_alt, clarify, reject."),
+        ("6", "Deduct Stock", "Google Sheets / Excel", "Executed on APPROVE only: decrements physical shelf count in real time."),
+        ("7", "Record Order", "Orders Database", "Executed on APPROVE: records order ID, customer, total price, and status."),
+        ("8", "Customer Notification", "Telegram Bot API", "Transmits order confirmation (on approve), alternatives, or clarification prompt."),
+        ("9", "Manager Escalation", "Telegram Bot API", "Executed on ESCALATE only: sends urgent override alert to owner for orders >= $100."),
+        ("10", "Append Audit Trail", "Logs Database", "Executed on ALL paths: records immutable timestamped audit log of all decisions."),
     ]
 
     wf_tbl = doc.add_table(rows=len(wf_table_data), cols=4)

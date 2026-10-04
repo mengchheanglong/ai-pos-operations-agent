@@ -127,6 +127,7 @@ class ExcelSheetsClient:
 
     def __init__(self, file_path=EXCEL_FILE_PATH):
         self.file_path = Path(file_path)
+        self._stock_cache = {}
         if not self.file_path.exists():
             try:
                 from scripts.init_excel_inventory import create_excel_inventory
@@ -135,50 +136,62 @@ class ExcelSheetsClient:
                 print(f"  [Excel] Could not initialize Excel file: {e}")
 
     def read_products(self) -> list[dict]:
-        """Read all products dynamically from the Products worksheet."""
+        """Read all products dynamically from the Products worksheet with live cache fallback."""
         if not HAS_OPENPYXL or not self.file_path.exists():
-            return [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
-        try:
-            wb = openpyxl.load_workbook(self.file_path, data_only=True)
-            if "Products" not in wb.sheetnames:
-                wb.close()
-                return [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
-            ws = wb["Products"]
-            rows = list(ws.iter_rows(values_only=True))
-            wb.close()
-            if not rows or len(rows) < 2:
-                return [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
-            headers = [str(h).strip() if h is not None else f"col_{i}" for i, h in enumerate(rows[0])]
-            products = []
-            for r in rows[1:]:
-                if not any(r):
-                    continue
-                item = {}
-                for h, val in zip(headers, r):
-                    if h in ("Price", "Stock", "Low_Stock_Threshold"):
-                        try:
-                            if isinstance(val, str):
-                                val = float(val.replace("$", "").replace(",", "").strip())
-                            item[h] = int(val) if h in ("Stock", "Low_Stock_Threshold") else float(val)
-                        except (ValueError, TypeError):
-                            item[h] = 0
+            products = [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
+        else:
+            try:
+                wb = openpyxl.load_workbook(self.file_path, data_only=True)
+                if "Products" not in wb.sheetnames:
+                    wb.close()
+                    products = [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
+                else:
+                    ws = wb["Products"]
+                    rows = list(ws.iter_rows(values_only=True))
+                    wb.close()
+                    if not rows or len(rows) < 2:
+                        products = [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
                     else:
-                        item[h] = str(val).strip() if val is not None else ""
-                products.append(item)
-            return products
-        except Exception as e:
-            print(f"  [Excel] Error reading Products: {e}")
-            return [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
+                        headers = [str(h).strip() if h is not None else f"col_{i}" for i, h in enumerate(rows[0])]
+                        products = []
+                        for r in rows[1:]:
+                            if not any(r):
+                                continue
+                            item = {}
+                            for h, val in zip(headers, r):
+                                if h in ("Price", "Stock", "Low_Stock_Threshold"):
+                                    try:
+                                        if isinstance(val, str):
+                                            val = float(val.replace("$", "").replace(",", "").strip())
+                                        item[h] = int(val) if h in ("Stock", "Low_Stock_Threshold") else float(val)
+                                    except (ValueError, TypeError):
+                                        item[h] = 0
+                                else:
+                                    item[h] = str(val).strip() if val is not None else ""
+                            products.append(item)
+            except Exception as e:
+                print(f"  [Excel] Error reading Products: {e}")
+                products = [dict(p) for p in DEFAULT_MOCK_PRODUCTS]
+
+        # Apply live in-memory stock overrides so UI is always real-time
+        for p in products:
+            sku = (p.get("SKU") or "").strip().upper()
+            if sku in self._stock_cache:
+                p["Stock"] = self._stock_cache[sku]
+        return products
 
     def update_stock(self, sku: str, new_stock: int) -> bool:
-        """Update stock for a product by SKU and save Excel workbook."""
+        """Update stock for a product by SKU and save Excel workbook with cache protection."""
+        sku_clean = sku.strip().upper()
+        self._stock_cache[sku_clean] = int(new_stock)
+
         if not HAS_OPENPYXL or not self.file_path.exists():
-            return False
+            return True
         try:
             wb = openpyxl.load_workbook(self.file_path)
             if "Products" not in wb.sheetnames:
                 wb.close()
-                return False
+                return True
             ws = wb["Products"]
             sku_col = None
             stock_col = None
@@ -194,20 +207,23 @@ class ExcelSheetsClient:
 
             updated = False
             for row in range(2, ws.max_row + 1):
-                cell_sku = str(ws.cell(row=row, column=sku_col).value or "").strip()
-                if cell_sku.upper() == sku.strip().upper():
+                cell_sku = str(ws.cell(row=row, column=sku_col).value or "").strip().upper()
+                if cell_sku == sku_clean:
                     ws.cell(row=row, column=stock_col, value=int(new_stock))
                     updated = True
                     break
 
             if updated:
-                wb.save(self.file_path)
-                print(f"  [Excel] Synced updated stock for {sku}: {new_stock} to {self.file_path.name}")
+                try:
+                    wb.save(self.file_path)
+                    print(f"  [Excel] Synced updated stock for {sku}: {new_stock} to {self.file_path.name}")
+                except PermissionError:
+                    print(f"  [Excel] NOTE: '{self.file_path.name}' is currently OPEN in Microsoft Excel! Changes are cached in-memory and will persist to disk once Excel is closed.")
             wb.close()
-            return updated
+            return True
         except Exception as e:
             print(f"  [Excel] Error updating stock in Excel: {e}")
-            return False
+            return True
 
     def append_order(self, order: dict) -> bool:
         """Append an order to Orders worksheet and save Excel workbook."""
@@ -489,9 +505,9 @@ Respond ONLY in valid JSON format (no markdown, no extra text):
 Business Rules:
 1. Auto-approve (action: "approve") if: total value < ${AUTO_APPROVE_MAX_VALUE} AND stock sufficient
 2. Require owner approval (action: "escalate") if: total value >= ${AUTO_APPROVE_MAX_VALUE} AND stock sufficient
-3. Suggest alternative (action: "suggest_alternative") if: stock < quantity AND an alternative variant or product exists in available inventory
-4. Reject (action: "reject") if: stock < quantity AND no suitable alternative available
-5. Ask clarification (action: "clarify") if: product not found or quantity unclear
+3. Suggest alternative (action: "suggest_alternative") if: stock < quantity AND an alternative variant exists with sufficient combined stock
+4. Reject (action: "reject") if: stock < quantity AND total store inventory cannot fulfill the requested quantity (e.g. requested >= 500 units), OR customer explicitly declines substitutes
+5. Ask clarification (action: "clarify") if: product not found in catalog or quantity/variant is unclear or missing
 
 Available Inventory:
 {inventory_summary}

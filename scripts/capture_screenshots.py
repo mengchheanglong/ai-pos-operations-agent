@@ -22,10 +22,10 @@ os.makedirs(output_dir, exist_ok=True)
 
 
 def generate_workflow_diagram():
-    """Generate high-resolution visual workflow diagram."""
-    fig, ax = plt.subplots(figsize=(10, 8), dpi=200)
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 12)
+    """Generate high-resolution visual workflow diagram with accurate multi-path execution."""
+    fig, ax = plt.subplots(figsize=(12, 10), dpi=200)
+    ax.set_xlim(0, 12)
+    ax.set_ylim(0, 13)
     ax.axis('off')
 
     # Colors
@@ -33,79 +33,118 @@ def generate_workflow_diagram():
     c_green = '#059669'
     c_amber = '#d97706'
     c_purple = '#7c3aed'
-    c_dark = '#1e293b'
+    c_dark = '#0f172a'
     c_bg = '#f8fafc'
 
     # Title
-    ax.text(5, 11.5, "AI Small Business Operations Agent - Workflow Diagram", 
+    ax.text(6, 12.5, "AI Small Business Operations Agent - Workflow Architecture", 
             ha='center', va='center', fontsize=14, fontweight='bold', color=c_dark)
-    ax.text(5, 11.1, "10-Step Autonomous Order Fulfillment & Multi-Path Routing", 
+    ax.text(6, 12.1, "Autonomous Order Processing, Multi-Path AI Reasoning & Branch-Specific Execution", 
             ha='center', va='center', fontsize=10, color='#64748b')
 
-    # Nodes
+    # Top pipeline steps
     steps = [
-        (5, 10.2, "1. Customer Order Request", "Webhook / Web Interface / CLI entry point", c_blue),
-        (5, 9.0, "2. AI Intent Extraction (Decision 1)", "DeepSeek LLM extracts product, variant, quantity, intent", c_purple),
-        (5, 7.8, "3. Read Inventory", "Google Sheets API / In-Memory Mock Inventory", c_blue),
-        (5, 6.6, "4. AI Fulfillment & Action Decision (Decisions 2 & 3)", "DeepSeek LLM applies business rules based on stock & value", c_purple),
+        (6, 11.2, "Step 1: Order Intake", "Receives customer request via Web POS Terminal, Webhook, or CLI", c_blue),
+        (6, 10.1, "Step 2: AI Intent Extraction (Decision Point 1)", "DeepSeek LLM parses product, variant, quantity, and intent into structured JSON", c_purple),
+        (6, 9.0, "Step 3: Read Live Inventory", "Queries Google Sheets / Persistent Excel (inventory.xlsx) for real-time stock", c_blue),
+        (6, 7.9, "Step 4: AI Fulfillment & Action Reasoning (Decision Points 2 & 3)", "DeepSeek LLM evaluates stock levels, pricing thresholds ($100 rule), and product validity", c_purple),
     ]
 
     for x, y, title, subtitle, col in steps:
-        box = patches.FancyBboxPatch((x-3.2, y-0.45), 6.4, 0.9, boxstyle="round,pad=0.1",
+        box = patches.FancyBboxPatch((x-4.5, y-0.42), 9.0, 0.84, boxstyle="round,pad=0.1",
                                      fc=c_bg, ec=col, lw=2)
         ax.add_patch(box)
         ax.text(x, y+0.12, title, ha='center', va='center', fontsize=10, fontweight='bold', color=col)
-        ax.text(x, y-0.18, subtitle, ha='center', va='center', fontsize=7.5, color='#475569')
+        ax.text(x, y-0.18, subtitle, ha='center', va='center', fontsize=8, color='#475569')
 
-    # Arrows for first 4 steps
-    for y in [9.7, 8.5, 7.3]:
-        ax.annotate('', xy=(5, y-0.2), xytext=(5, y+0.3),
+    # Arrows between top steps
+    for y in [10.7, 9.6, 8.5]:
+        ax.annotate('', xy=(6, y-0.15), xytext=(6, y+0.35),
                     arrowprops=dict(arrowstyle="->", lw=2, color='#64748b'))
 
-    # Step 5: Autonomous 5-Way Branching
-    ax.annotate('', xy=(5, 5.6), xytext=(5, 6.1),
+    # Step 5 Header: 5-Way Autonomous Router
+    ax.annotate('', xy=(6, 6.95), xytext=(6, 7.45),
                 arrowprops=dict(arrowstyle="->", lw=2, color='#64748b'))
 
-    ax.text(5, 5.4, "5. Autonomous Workflow Routing (5 Possible Paths)", 
-            ha='center', va='center', fontsize=10, fontweight='bold', color=c_dark)
+    router_box = patches.FancyBboxPatch((1.5, 6.4), 9.0, 0.55, boxstyle="round,pad=0.08",
+                                        fc='#e0e7ff', ec='#4338ca', lw=2)
+    ax.add_patch(router_box)
+    ax.text(6, 6.67, "Step 5: Autonomous Workflow Routing (5 Mutually Exclusive Execution Paths)", 
+            ha='center', va='center', fontsize=10, fontweight='bold', color='#312e81')
 
-    branches = [
-        (1.2, 4.2, "Approve", "Auto-fulfill\nValue < $100\nStock OK", c_green),
-        (3.1, 4.2, "Escalate", "Owner Review\nValue >= $100\nOwner Alert", c_amber),
-        (5.0, 4.2, "Suggest Alt", "Out of Stock\nOffer Sub.\nVariants", c_purple),
-        (6.9, 4.2, "Clarify", "Incomplete Info\nor Unknown SKU", c_blue),
-        (8.8, 4.2, "Reject", "Cannot Fulfill\nNo Stock/Alt\nAvailable", '#dc2626'),
+    # 5 Branch columns
+    branch_data = [
+        (1.4, "APPROVE", "Auto-fulfill\nStock OK\nValue < $100", c_green, [
+            "• Deduct inventory",
+            "• Record in Orders tab",
+            "• Customer Telegram alert",
+            "• Append to Logs tab",
+        ]),
+        (3.7, "ESCALATE", "Owner Review\nValue ≥ $100\nThreshold triggered", c_amber, [
+            "• Stock UNTOUCHED",
+            "• Owner Telegram alert",
+            "• Order marked PENDING",
+            "• Append to Logs tab",
+        ]),
+        (6.0, "SUGGEST ALT", "Stock Deficit\nAlternative items\navailable", c_purple, [
+            "• Stock UNTOUCHED",
+            "• Query substitute items",
+            "• Proposal via Telegram",
+            "• Append to Logs tab",
+        ]),
+        (8.3, "CLARIFY", "Ambiguous order\nMissing variant\nUnknown SKU", c_blue, [
+            "• Stock UNTOUCHED",
+            "• Prompt clarification",
+            "• Await customer input",
+            "• Append to Logs tab",
+        ]),
+        (10.6, "REJECT", "Cannot Fulfill\nZero inventory\nNo substitutes", '#dc2626', [
+            "• Stock UNTOUCHED",
+            "• Send decline notice",
+            "• Polite explanation",
+            "• Append to Logs tab",
+        ]),
     ]
 
-    for x, y, title, desc, col in branches:
-        # Branch box
-        box = patches.FancyBboxPatch((x-0.85, y-0.6), 1.7, 1.2, boxstyle="round,pad=0.08",
-                                     fc='#ffffff', ec=col, lw=1.8)
-        ax.add_patch(box)
-        ax.text(x, y+0.3, title, ha='center', va='center', fontsize=8.5, fontweight='bold', color=col)
-        ax.text(x, y-0.15, desc, ha='center', va='center', fontsize=6.8, color='#334155', linespacing=1.2)
+    for x_center, b_title, b_condition, col, actions in branch_data:
+        # Branch header card
+        header_box = patches.FancyBboxPatch((x_center-1.05, 5.0), 2.1, 1.1, boxstyle="round,pad=0.08",
+                                            fc='#ffffff', ec=col, lw=2)
+        ax.add_patch(header_box)
+        ax.text(x_center, 5.75, b_title, ha='center', va='center', fontsize=9, fontweight='bold', color=col)
+        ax.text(x_center, 5.3, b_condition, ha='center', va='center', fontsize=7, color='#334155', linespacing=1.15)
 
-        # Connector arrow from routing
-        ax.annotate('', xy=(x, y+0.65), xytext=(5, 5.2),
-                    arrowprops=dict(arrowstyle="->", lw=1.2, color=col))
+        # Arrow from router to branch header
+        ax.annotate('', xy=(x_center, 6.15), xytext=(6, 6.4),
+                    arrowprops=dict(arrowstyle="->", lw=1.5, color=col))
 
-    # Downstream execution steps (Steps 6 to 10)
-    exec_steps = [
-        (5, 2.2, "6. Execute Action (Update Stock in Google Sheets)"),
-        (5, 1.5, "7. Create Order Record (Orders Sheet) & Notify Customer (Telegram)"),
-        (5, 0.8, "8. Notify Owner if Escalated (Telegram) | 9. Append Audit Log (Logs Sheet)"),
-        (5, 0.1, "10. Return Final Structured Result to Caller"),
-    ]
+        # Branch execution details card
+        actions_box = patches.FancyBboxPatch((x_center-1.05, 2.3), 2.1, 2.45, boxstyle="round,pad=0.08",
+                                             fc='#ffffff', ec=col, lw=1.4, ls='--')
+        ax.add_patch(actions_box)
+        ax.text(x_center, 4.45, "Execution Actions:", ha='center', va='center', fontsize=7.5, fontweight='bold', color=col)
+        
+        y_act = 4.0
+        for act in actions:
+            ax.text(x_center-0.95, y_act, act, ha='left', va='center', fontsize=6.8, color='#1e293b')
+            y_act -= 0.45
 
-    for x, y, text in exec_steps:
-        box = patches.FancyBboxPatch((x-4.2, y-0.25), 8.4, 0.5, boxstyle="round,pad=0.06",
-                                     fc='#f1f5f9', ec='#cbd5e1', lw=1)
-        ax.add_patch(box)
-        ax.text(x, y, text, ha='center', va='center', fontsize=8, fontweight='bold', color=c_dark)
+        # Arrow from branch header down to execution card
+        ax.annotate('', xy=(x_center, 4.8), xytext=(x_center, 5.0),
+                    arrowprops=dict(arrowstyle="->", lw=1.5, color=col))
 
-    # Connector down
-    ax.annotate('', xy=(5, 2.5), xytext=(5, 3.4),
-                arrowprops=dict(arrowstyle="->", lw=2, color='#64748b'))
+        # Arrow from execution card down to completion node
+        ax.annotate('', xy=(6, 1.25), xytext=(x_center, 2.25),
+                    arrowprops=dict(arrowstyle="->", lw=1.2, color='#94a3b8'))
+
+    # Final Step: Unified Return
+    final_box = patches.FancyBboxPatch((1.5, 0.4), 9.0, 0.8, boxstyle="round,pad=0.1",
+                                       fc='#0f172a', ec='#334155', lw=1.5)
+    ax.add_patch(final_box)
+    ax.text(6, 0.95, "Step 10: Deliver Structured Response to Calling Interface", 
+            ha='center', va='center', fontsize=9.5, fontweight='bold', color='#ffffff')
+    ax.text(6, 0.62, "Formats receipt / status notice, returns JSON to POS Web Terminal, Webhook, or Telegram", 
+            ha='center', va='center', fontsize=7.8, color='#94a3b8')
 
     plt.tight_layout()
     diagram_path = os.path.join(output_dir, "00_workflow_diagram.png")

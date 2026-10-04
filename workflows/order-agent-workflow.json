@@ -1,5 +1,5 @@
 {
-  "name": "AI Small Business Operations Agent",
+  "name": "AI Small Business Operations Agent (Complete 17-Node)",
   "nodes": [
     {
       "parameters": {
@@ -12,7 +12,10 @@
       "name": "Webhook - Customer Order",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.1,
-      "position": [250, 300]
+      "position": [
+        220,
+        380
+      ]
     },
     {
       "parameters": {
@@ -25,7 +28,10 @@
       "name": "Read Inventory",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.1,
-      "position": [470, 300]
+      "position": [
+        440,
+        380
+      ]
     },
     {
       "parameters": {
@@ -51,7 +57,10 @@
       "name": "AI - Extract Order Intent",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1.2,
-      "position": [690, 300]
+      "position": [
+        660,
+        380
+      ]
     },
     {
       "parameters": {
@@ -60,7 +69,7 @@
           "values": [
             {
               "role": "system",
-              "content": "You are an AI decision agent. Business rules:\n1. Auto-approve if total < $100 AND stock sufficient\n2. Escalate if total >= $100\n3. Suggest alternative if stock insufficient but alternative exists\n4. Clarify if product not found\n5. Reject if no alternative\n\nInventory: {{ $json.inventory }}\nOrder: {{ $json.order }}\n\nRespond in JSON: {\"action\": \"approve|escalate|suggest_alternative|clarify|reject\", \"reason\": \"explanation\", \"customer_message\": \"response\"}"
+              "content": "You are an AI decision agent. Business rules:\n1. Auto-approve if total < $100 AND stock sufficient\n2. Escalate if total >= $100\n3. Suggest alternative if stock insufficient but alternative exists\n4. Clarify if product not found\n5. Reject if no alternative\n\nRespond in JSON: {\"action\": \"approve|escalate|suggest_alternative|clarify|reject\", \"reason\": \"explanation\", \"customer_message\": \"response\"}"
             }
           ]
         },
@@ -73,7 +82,58 @@
       "name": "AI - Decide Action",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1.2,
-      "position": [910, 300]
+      "position": [
+        880,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "route-approve",
+      "name": "Route - Approve",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "sheetName": "Products",
+        "options": {}
+      },
+      "id": "update-stock",
+      "name": "Update Stock",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [
+        1340,
+        180
+      ]
     },
     {
       "parameters": {
@@ -82,14 +142,8 @@
         "sheetName": "Orders",
         "columns": {
           "value": {
-            "order_id": "={{ $json.order_id }}",
-            "customer": "={{ $json.customer }}",
-            "product": "={{ $json.product }}",
-            "quantity": "={{ $json.quantity }}",
-            "total_value": "={{ $json.total_value }}",
-            "status": "={{ $json.action }}",
-            "timestamp": "={{ $now.toISO() }}",
-            "notes": "={{ $json.reason }}"
+            "status": "approved",
+            "timestamp": "={{ $now.toISO() }}"
           }
         },
         "options": {}
@@ -98,23 +152,245 @@
       "name": "Create Order Record",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.1,
-      "position": [1130, 300]
+      "position": [
+        1560,
+        180
+      ]
     },
     {
       "parameters": {
         "resource": "message",
         "operation": "send",
         "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
-        "text": "={{ $json.customer_message || $json.reason }}",
+        "text": "={{ $json.customer_message || '\u2705 Order Approved' }}",
         "additionalFields": {
           "parse_mode": "HTML"
         }
       },
-      "id": "telegram-customer",
-      "name": "Notify Customer",
+      "id": "notify-customer-approved",
+      "name": "Notify Customer - Receipt",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.1,
-      "position": [1350, 300]
+      "position": [
+        1780,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "sheetName": "Logs",
+        "columns": {
+          "value": {
+            "action": "order_approved",
+            "timestamp": "={{ $now.toISO() }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-approved",
+      "name": "Log Action - Approved",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [
+        2000,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "escalate",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "route-escalate",
+      "name": "Route - Escalate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "chatId": "={{ $env.TELEGRAM_OWNER_CHAT_ID }}",
+        "text": "\u26a0\ufe0f <b>Order Escalation Required</b>\nReason: {{ $json.reason }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "notify-owner-escalate",
+      "name": "Notify Owner - Escalation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "sheetName": "Logs",
+        "columns": {
+          "value": {
+            "action": "owner_escalation",
+            "timestamp": "={{ $now.toISO() }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-escalated",
+      "name": "Log Action - Escalated",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [
+        1780,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c3",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "suggest_alternative",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "route-suggest",
+      "name": "Route - Suggest Alt",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "\ud83d\udce6 <b>Alternative Offered</b>\n{{ $json.customer_message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "notify-customer-alt",
+      "name": "Notify Customer - Suggestion",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1780,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c4",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "clarify",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "route-clarify",
+      "name": "Route - Clarify",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "\u2753 <b>Clarification Needed</b>\n{{ $json.customer_message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "ask-clarification",
+      "name": "Ask Customer - Clarification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "\u274c <b>Order Cannot Be Fulfilled</b>\n{{ $json.customer_message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "notify-rejection",
+      "name": "Notify Customer - Rejection",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        780
+      ]
     },
     {
       "parameters": {
@@ -126,7 +402,10 @@
       "name": "Respond to Customer",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [1570, 300]
+      "position": [
+        2260,
+        380
+      ]
     }
   ],
   "connections": {
@@ -167,6 +446,35 @@
       "main": [
         [
           {
+            "node": "Route - Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route - Approve": {
+      "main": [
+        [
+          {
+            "node": "Update Stock",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route - Escalate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Stock": {
+      "main": [
+        [
+          {
             "node": "Create Order Record",
             "type": "main",
             "index": 0
@@ -178,14 +486,134 @@
       "main": [
         [
           {
-            "node": "Notify Customer",
+            "node": "Notify Customer - Receipt",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Notify Customer": {
+    "Notify Customer - Receipt": {
+      "main": [
+        [
+          {
+            "node": "Log Action - Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Action - Approved": {
+      "main": [
+        [
+          {
+            "node": "Respond to Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route - Escalate": {
+      "main": [
+        [
+          {
+            "node": "Notify Owner - Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route - Suggest Alt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Owner - Escalation": {
+      "main": [
+        [
+          {
+            "node": "Log Action - Escalated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Action - Escalated": {
+      "main": [
+        [
+          {
+            "node": "Respond to Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route - Suggest Alt": {
+      "main": [
+        [
+          {
+            "node": "Notify Customer - Suggestion",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route - Clarify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Customer - Suggestion": {
+      "main": [
+        [
+          {
+            "node": "Respond to Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route - Clarify": {
+      "main": [
+        [
+          {
+            "node": "Ask Customer - Clarification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Customer - Rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Customer - Clarification": {
+      "main": [
+        [
+          {
+            "node": "Respond to Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Customer - Rejection": {
       "main": [
         [
           {

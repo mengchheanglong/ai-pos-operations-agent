@@ -1,0 +1,318 @@
+import json
+from pathlib import Path
+
+nodes = [
+    {
+        "parameters": {
+            "httpMethod": "POST",
+            "path": "order-request",
+            "responseMode": "responseNode",
+            "options": {}
+        },
+        "id": "webhook-trigger",
+        "name": "Webhook - Customer Order",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1.1,
+        "position": [220, 380]
+    },
+    {
+        "parameters": {
+            "operation": "read",
+            "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+            "sheetName": "Products",
+            "options": {}
+        },
+        "id": "read-inventory",
+        "name": "Read Inventory",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.1,
+        "position": [440, 380]
+    },
+    {
+        "parameters": {
+            "model": "deepseek-chat",
+            "messages": {
+                "values": [
+                    {
+                        "role": "system",
+                        "content": "You are an AI order processing agent. Extract from the customer message: product name, variant, quantity, and intent. Respond in JSON: {\"product\": \"name\", \"variant\": \"variant or null\", \"quantity\": number, \"intent\": \"order|inquiry\", \"confidence\": 0.0-1.0}"
+                    },
+                    {
+                        "role": "user",
+                        "content": "={{ $json.body.message || $json.body }}"
+                    }
+                ]
+            },
+            "options": {"temperature": 0.1, "maxTokens": 500}
+        },
+        "id": "extract-intent",
+        "name": "AI - Extract Order Intent",
+        "type": "n8n-nodes-base.openAi",
+        "typeVersion": 1.2,
+        "position": [660, 380]
+    },
+    {
+        "parameters": {
+            "model": "deepseek-chat",
+            "messages": {
+                "values": [
+                    {
+                        "role": "system",
+                        "content": "You are an AI decision agent. Business rules:\n1. Auto-approve if total < $100 AND stock sufficient\n2. Escalate if total >= $100\n3. Suggest alternative if stock insufficient but alternative exists\n4. Clarify if product not found\n5. Reject if no alternative\n\nRespond in JSON: {\"action\": \"approve|escalate|suggest_alternative|clarify|reject\", \"reason\": \"explanation\", \"customer_message\": \"response\"}"
+                    }
+                ]
+            },
+            "options": {"temperature": 0.2, "maxTokens": 800}
+        },
+        "id": "decide-action",
+        "name": "AI - Decide Action",
+        "type": "n8n-nodes-base.openAi",
+        "typeVersion": 1.2,
+        "position": [880, 380]
+    },
+    {
+        "parameters": {
+            "conditions": {
+                "options": {"caseSensitive": False, "leftValue": "", "typeValidation": "strict", "version": 2},
+                "conditions": [{"id": "c1", "leftValue": "={{ $json.action }}", "rightValue": "approve", "operator": {"type": "string", "operation": "equals"}}],
+                "combinator": "and"
+            }
+        },
+        "id": "route-approve",
+        "name": "Route - Approve",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [1100, 380]
+    },
+    {
+        "parameters": {
+            "operation": "update",
+            "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+            "sheetName": "Products",
+            "options": {}
+        },
+        "id": "update-stock",
+        "name": "Update Stock",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.1,
+        "position": [1340, 180]
+    },
+    {
+        "parameters": {
+            "operation": "append",
+            "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+            "sheetName": "Orders",
+            "columns": {"value": {"status": "approved", "timestamp": "={{ $now.toISO() }}"}},
+            "options": {}
+        },
+        "id": "create-order",
+        "name": "Create Order Record",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.1,
+        "position": [1560, 180]
+    },
+    {
+        "parameters": {
+            "resource": "message",
+            "operation": "send",
+            "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+            "text": "={{ $json.customer_message || '✅ Order Approved' }}",
+            "additionalFields": {"parse_mode": "HTML"}
+        },
+        "id": "notify-customer-approved",
+        "name": "Notify Customer - Receipt",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.1,
+        "position": [1780, 180]
+    },
+    {
+        "parameters": {
+            "operation": "append",
+            "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+            "sheetName": "Logs",
+            "columns": {"value": {"action": "order_approved", "timestamp": "={{ $now.toISO() }}"}},
+            "options": {}
+        },
+        "id": "log-approved",
+        "name": "Log Action - Approved",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.1,
+        "position": [2000, 180]
+    },
+    {
+        "parameters": {
+            "conditions": {
+                "options": {"caseSensitive": False, "leftValue": "", "typeValidation": "strict", "version": 2},
+                "conditions": [{"id": "c2", "leftValue": "={{ $json.action }}", "rightValue": "escalate", "operator": {"type": "string", "operation": "equals"}}],
+                "combinator": "and"
+            }
+        },
+        "id": "route-escalate",
+        "name": "Route - Escalate",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [1340, 380]
+    },
+    {
+        "parameters": {
+            "resource": "message",
+            "operation": "send",
+            "chatId": "={{ $env.TELEGRAM_OWNER_CHAT_ID }}",
+            "text": "⚠️ <b>Order Escalation Required</b>\nReason: {{ $json.reason }}",
+            "additionalFields": {"parse_mode": "HTML"}
+        },
+        "id": "notify-owner-escalate",
+        "name": "Notify Owner - Escalation",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.1,
+        "position": [1560, 340]
+    },
+    {
+        "parameters": {
+            "operation": "append",
+            "documentId": "={{ $env.GOOGLE_SHEET_ID }}",
+            "sheetName": "Logs",
+            "columns": {"value": {"action": "owner_escalation", "timestamp": "={{ $now.toISO() }}"}},
+            "options": {}
+        },
+        "id": "log-escalated",
+        "name": "Log Action - Escalated",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.1,
+        "position": [1780, 340]
+    },
+    {
+        "parameters": {
+            "conditions": {
+                "options": {"caseSensitive": False, "leftValue": "", "typeValidation": "strict", "version": 2},
+                "conditions": [{"id": "c3", "leftValue": "={{ $json.action }}", "rightValue": "suggest_alternative", "operator": {"type": "string", "operation": "equals"}}],
+                "combinator": "and"
+            }
+        },
+        "id": "route-suggest",
+        "name": "Route - Suggest Alt",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [1560, 520]
+    },
+    {
+        "parameters": {
+            "resource": "message",
+            "operation": "send",
+            "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+            "text": "📦 <b>Alternative Offered</b>\n{{ $json.customer_message }}",
+            "additionalFields": {"parse_mode": "HTML"}
+        },
+        "id": "notify-customer-alt",
+        "name": "Notify Customer - Suggestion",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.1,
+        "position": [1780, 500]
+    },
+    {
+        "parameters": {
+            "conditions": {
+                "options": {"caseSensitive": False, "leftValue": "", "typeValidation": "strict", "version": 2},
+                "conditions": [{"id": "c4", "leftValue": "={{ $json.action }}", "rightValue": "clarify", "operator": {"type": "string", "operation": "equals"}}],
+                "combinator": "and"
+            }
+        },
+        "id": "route-clarify",
+        "name": "Route - Clarify",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [1780, 660]
+    },
+    {
+        "parameters": {
+            "resource": "message",
+            "operation": "send",
+            "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+            "text": "❓ <b>Clarification Needed</b>\n{{ $json.customer_message }}",
+            "additionalFields": {"parse_mode": "HTML"}
+        },
+        "id": "ask-clarification",
+        "name": "Ask Customer - Clarification",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.1,
+        "position": [2000, 640]
+    },
+    {
+        "parameters": {
+            "resource": "message",
+            "operation": "send",
+            "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+            "text": "❌ <b>Order Cannot Be Fulfilled</b>\n{{ $json.customer_message }}",
+            "additionalFields": {"parse_mode": "HTML"}
+        },
+        "id": "notify-rejection",
+        "name": "Notify Customer - Rejection",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.1,
+        "position": [2000, 780]
+    },
+    {
+        "parameters": {
+            "respondWith": "json",
+            "responseBody": "={{ $json }}",
+            "options": {}
+        },
+        "id": "respond-webhook",
+        "name": "Respond to Customer",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [2260, 380]
+    }
+]
+
+connections = {
+    "Webhook - Customer Order": {"main": [[{"node": "Read Inventory", "type": "main", "index": 0}]]},
+    "Read Inventory": {"main": [[{"node": "AI - Extract Order Intent", "type": "main", "index": 0}]]},
+    "AI - Extract Order Intent": {"main": [[{"node": "AI - Decide Action", "type": "main", "index": 0}]]},
+    "AI - Decide Action": {"main": [[{"node": "Route - Approve", "type": "main", "index": 0}]]},
+    "Route - Approve": {
+        "main": [
+            [{"node": "Update Stock", "type": "main", "index": 0}],
+            [{"node": "Route - Escalate", "type": "main", "index": 0}]
+        ]
+    },
+    "Update Stock": {"main": [[{"node": "Create Order Record", "type": "main", "index": 0}]]},
+    "Create Order Record": {"main": [[{"node": "Notify Customer - Receipt", "type": "main", "index": 0}]]},
+    "Notify Customer - Receipt": {"main": [[{"node": "Log Action - Approved", "type": "main", "index": 0}]]},
+    "Log Action - Approved": {"main": [[{"node": "Respond to Customer", "type": "main", "index": 0}]]},
+    "Route - Escalate": {
+        "main": [
+            [{"node": "Notify Owner - Escalation", "type": "main", "index": 0}],
+            [{"node": "Route - Suggest Alt", "type": "main", "index": 0}]
+        ]
+    },
+    "Notify Owner - Escalation": {"main": [[{"node": "Log Action - Escalated", "type": "main", "index": 0}]]},
+    "Log Action - Escalated": {"main": [[{"node": "Respond to Customer", "type": "main", "index": 0}]]},
+    "Route - Suggest Alt": {
+        "main": [
+            [{"node": "Notify Customer - Suggestion", "type": "main", "index": 0}],
+            [{"node": "Route - Clarify", "type": "main", "index": 0}]
+        ]
+    },
+    "Notify Customer - Suggestion": {"main": [[{"node": "Respond to Customer", "type": "main", "index": 0}]]},
+    "Route - Clarify": {
+        "main": [
+            [{"node": "Ask Customer - Clarification", "type": "main", "index": 0}],
+            [{"node": "Notify Customer - Rejection", "type": "main", "index": 0}]
+        ]
+    },
+    "Ask Customer - Clarification": {"main": [[{"node": "Respond to Customer", "type": "main", "index": 0}]]},
+    "Notify Customer - Rejection": {"main": [[{"node": "Respond to Customer", "type": "main", "index": 0}]]}
+}
+
+workflow = {
+    "name": "AI Small Business Operations Agent (Complete 17-Node)",
+    "nodes": nodes,
+    "connections": connections,
+    "settings": {"executionOrder": "v1"},
+    "tags": [{"name": "ai-agent"}]
+}
+
+out_path = Path("workflows/order-agent-workflow.json")
+out_path.write_text(json.dumps(workflow, indent=2), encoding="utf-8")
+print(f"Written {len(nodes)} nodes to {out_path}")

@@ -321,6 +321,13 @@
         }
         .preset-chip.clarify:hover { background: #e2e8f0; }
 
+        .preset-chip.reject {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+        .preset-chip.reject:hover { background: #fee2e2; }
+
         /* Product Cards Grid */
         .products-grid {
             flex: 1;
@@ -898,6 +905,13 @@
             color: #334155;
         }
 
+        .status-box.rejected,
+        .status-box.reject {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
         .status-badge-text {
             font-size: 13px;
             font-weight: 700;
@@ -1167,6 +1181,9 @@
                     </button>
                     <button class="preset-chip clarify" onclick="runPresetScenario('clarify')" title="Catalog clarification flow: Blue Jeans">
                         <span>❓ Clarify SKU</span>
+                    </button>
+                    <button class="preset-chip reject" onclick="runPresetScenario('reject')" title="Order rejection flow: Impossible quantity (1000 units)">
+                        <span>❌ Reject Sale</span>
                     </button>
                 </div>
             </div>
@@ -1512,7 +1529,7 @@ Digital receipt recorded to Google Sheets.
         // ------------------------------------------
         async function loadCatalog() {
             try {
-                const res = await fetch('/api/products');
+                const res = await fetch('/api/products?t=' + Date.now());
                 allProducts = await res.json();
                 renderCatalog();
             } catch (err) {
@@ -1637,7 +1654,8 @@ Digital receipt recorded to Google Sheets.
         function clearCart() {
             cart = [];
             activeDiscount = 0;
-            document.getElementById('discount-label').textContent = 'Add Discount';
+            const discountLabel = document.getElementById('discount-label');
+            if (discountLabel) discountLabel.textContent = 'Add Discount';
             updateCartUI();
         }
 
@@ -1647,68 +1665,80 @@ Digital receipt recorded to Google Sheets.
             const countBadge = document.getElementById('cart-item-count');
             const clearBtn = document.getElementById('btn-clear-cart');
             const payBtn = document.getElementById('btn-pay-action');
-            const payBtnLabel = document.getElementById('pay-btn-label');
+            let payBtnLabel = document.getElementById('pay-btn-label');
+
+            // Defensive restoration of payBtnLabel if innerHTML was ever altered
+            if (!payBtnLabel && payBtn) {
+                payBtn.innerHTML = `<span id="pay-btn-label">Pay $0.00</span><span>⚡</span>`;
+                payBtnLabel = document.getElementById('pay-btn-label');
+            }
 
             const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
-            countBadge.textContent = totalItemsCount;
+            if (countBadge) countBadge.textContent = totalItemsCount;
+
+            const subtotalEl = document.getElementById('summary-subtotal');
+            const totalEl = document.getElementById('summary-total');
+            const rielEl = document.getElementById('summary-riel');
 
             if (cart.length === 0) {
-                emptyView.style.display = 'flex';
-                itemsContainer.style.display = 'none';
-                clearBtn.style.display = 'none';
-                payBtn.classList.remove('active');
-                payBtnLabel.textContent = 'Pay $0.00';
-
-                document.getElementById('summary-subtotal').textContent = '$0.00';
-                document.getElementById('summary-total').textContent = '$0.00';
-                document.getElementById('summary-riel').textContent = '0 ៛';
+                if (emptyView) emptyView.style.display = 'flex';
+                if (itemsContainer) itemsContainer.style.display = 'none';
+                if (clearBtn) clearBtn.style.display = 'none';
+                if (payBtn) payBtn.classList.remove('active');
+                if (payBtnLabel) payBtnLabel.textContent = 'Pay $0.00';
+                if (subtotalEl) subtotalEl.textContent = '$0.00';
+                if (totalEl) totalEl.textContent = '$0.00';
+                if (rielEl) rielEl.textContent = '0 ៛';
                 return;
             }
 
-            emptyView.style.display = 'none';
-            itemsContainer.style.display = 'flex';
-            clearBtn.style.display = 'inline-block';
-            payBtn.classList.add('active');
+            if (emptyView) emptyView.style.display = 'none';
+            if (itemsContainer) itemsContainer.style.display = 'flex';
+            if (clearBtn) clearBtn.style.display = 'inline-block';
+            if (payBtn) payBtn.classList.add('active');
 
             // Render line items
-            itemsContainer.innerHTML = '';
-            let subtotal = 0;
+            if (itemsContainer) {
+                itemsContainer.innerHTML = '';
+                let subtotal = 0;
 
-            cart.forEach(item => {
-                const lineTotal = item.price * item.qty;
-                subtotal += lineTotal;
+                cart.forEach(item => {
+                    const lineTotal = item.price * item.qty;
+                    subtotal += lineTotal;
 
-                const itemRow = document.createElement('div');
-                itemRow.className = 'cart-item';
-                itemRow.innerHTML = `
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.product}</div>
-                        <div class="cart-item-meta">${item.variant} · $${item.price.toFixed(2)}</div>
-                    </div>
-                    <div class="cart-item-controls">
-                        <button class="qty-btn" onclick="changeCartItemQty('${item.sku}', -1)">-</button>
-                        <span class="qty-val">${item.qty}</span>
-                        <button class="qty-btn" onclick="changeCartItemQty('${item.sku}', 1)">+</button>
-                    </div>
-                    <div class="cart-item-price">$${lineTotal.toFixed(2)}</div>
-                    <button class="cart-item-del" onclick="removeCartItem('${item.sku}')">✕</button>
-                `;
-                itemsContainer.appendChild(itemRow);
-            });
+                    const itemRow = document.createElement('div');
+                    itemRow.className = 'cart-item';
+                    itemRow.innerHTML = `
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.product}</div>
+                            <div class="cart-item-meta">${item.variant} · $${item.price.toFixed(2)}</div>
+                        </div>
+                        <div class="cart-item-controls">
+                            <button class="qty-btn" onclick="changeCartItemQty('${item.sku}', -1)">-</button>
+                            <span class="qty-val">${item.qty}</span>
+                            <button class="qty-btn" onclick="changeCartItemQty('${item.sku}', 1)">+</button>
+                        </div>
+                        <div class="cart-item-price">$${lineTotal.toFixed(2)}</div>
+                        <button class="cart-item-del" onclick="removeCartItem('${item.sku}')">✕</button>
+                    `;
+                    itemsContainer.appendChild(itemRow);
+                });
 
-            const finalTotal = Math.max(0, subtotal - activeDiscount);
-            const rielTotal = Math.round(finalTotal * KHR_RATE);
+                const finalTotal = Math.max(0, subtotal - activeDiscount);
+                const rielTotal = Math.round(finalTotal * KHR_RATE);
 
-            document.getElementById('summary-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('summary-total').textContent = `$${finalTotal.toFixed(2)}`;
-            document.getElementById('summary-riel').textContent = `${rielTotal.toLocaleString()} ៛`;
-            payBtnLabel.textContent = `Pay $${finalTotal.toFixed(2)}`;
+                if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+                if (totalEl) totalEl.textContent = `$${finalTotal.toFixed(2)}`;
+                if (rielEl) rielEl.textContent = `${rielTotal.toLocaleString()} ៛`;
+                if (payBtnLabel) payBtnLabel.textContent = `Pay $${finalTotal.toFixed(2)}`;
+            }
         }
 
         function cycleCustomer() {
             currentCustomerIndex = (currentCustomerIndex + 1) % customersList.length;
             const name = customersList[currentCustomerIndex];
-            document.getElementById('current-customer-label').textContent = name;
+            const custEl = document.getElementById('current-customer-label');
+            if (custEl) custEl.textContent = name;
             showToast(`Switched customer: ${name}`);
         }
 
@@ -1716,19 +1746,20 @@ Digital receipt recorded to Google Sheets.
             const promo = prompt("Enter Discount Amount ($) or Promo Code:", "5");
             if (promo !== null) {
                 const amt = parseFloat(promo);
+                const discountLabel = document.getElementById('discount-label');
                 if (!isNaN(amt) && amt > 0) {
                     activeDiscount = amt;
-                    document.getElementById('discount-label').textContent = `-$${amt.toFixed(2)}`;
+                    if (discountLabel) discountLabel.textContent = `-$${amt.toFixed(2)}`;
                     updateCartUI();
                     showToast(`Discount applied: -$${amt.toFixed(2)}`);
                 } else if (promo.toUpperCase() === 'VIP10') {
                     activeDiscount = 10;
-                    document.getElementById('discount-label').textContent = "-$10.00 (VIP10)";
+                    if (discountLabel) discountLabel.textContent = "-$10.00 (VIP10)";
                     updateCartUI();
                     showToast("VIP10 Coupon applied!");
                 } else {
                     activeDiscount = 0;
-                    document.getElementById('discount-label').textContent = "Add Discount";
+                    if (discountLabel) discountLabel.textContent = "Add Discount";
                     updateCartUI();
                 }
             }
@@ -1743,33 +1774,62 @@ Digital receipt recorded to Google Sheets.
             clearCart();
         }
 
+        let lastOrderStatus = 'unknown';
+
         // ------------------------------------------
         // CHECKOUT & AI PROCESSING PIPELINE
         // ------------------------------------------
         async function executeCheckout() {
             if (cart.length === 0) {
-                showToast("Please tap products or scan barcodes to add items first");
+                showToast("Please tap products to add items to cart first");
                 return;
             }
 
-            // Construct natural language summary of cart items
-            const orderSummary = cart.map(i => `${i.qty} ${i.variant} ${i.product}`).join(' and ');
-            const promptMessage = `Customer wants ${orderSummary}`;
             const customerName = customersList[currentCustomerIndex];
+            const payBtn = document.getElementById('btn-pay-action');
+            const payBtnLabel = document.getElementById('pay-btn-label');
+            if (payBtn) payBtn.disabled = true;
+            if (payBtnLabel) payBtnLabel.textContent = "Processing AI...";
 
-            await sendOrderToAgent(promptMessage, customerName);
+            try {
+                const res = await fetch('/api/pos-checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart, customer: customerName })
+                });
+                const data = await res.json();
+                lastOrderStatus = data.status || 'unknown';
+
+                // Summary for display
+                const summaryText = cart.map(i => `${i.qty}x ${i.product} (${i.variant || 'Standard'})`).join(' + ');
+                showDecisionModal(data, summaryText, customerName);
+
+                if (data.status === 'approved') {
+                    clearCart();
+                    showToast("✅ Sale completed! Stock decremented & cart cleared.");
+                }
+
+                // Immediately reload fresh stock from inventory
+                await loadCatalog();
+            } catch (err) {
+                console.error("Checkout error:", err);
+                alert("POS Processing Error: " + err);
+            } finally {
+                if (payBtn) payBtn.disabled = false;
+                updateCartUI();
+            }
         }
 
         async function processSearchPrompt() {
             const input = document.getElementById('pos-search-input');
-            const text = input.value.trim();
+            const text = input ? input.value.trim() : '';
             if (!text) {
                 showToast("Type an order message or scan a barcode");
                 return;
             }
             const customerName = customersList[currentCustomerIndex];
             await sendOrderToAgent(text, customerName);
-            input.value = '';
+            if (input) input.value = '';
         }
 
         function handleSearchKey(event) {
@@ -1795,20 +1855,26 @@ Digital receipt recorded to Google Sheets.
                 'clarify': {
                     msg: "Do you have blue jeans?",
                     customer: "Alice Brown"
+                },
+                'reject': {
+                    msg: "I need 1000 red shirts immediately",
+                    customer: "Charlie Green"
                 }
             };
 
             const selected = presets[scenario];
             if (!selected) return;
 
-            document.getElementById('current-customer-label').textContent = selected.customer;
+            const custEl = document.getElementById('current-customer-label');
+            if (custEl) custEl.textContent = selected.customer;
             await sendOrderToAgent(selected.msg, selected.customer);
         }
 
         async function sendOrderToAgent(message, customer) {
             const payBtn = document.getElementById('btn-pay-action');
-            payBtn.disabled = true;
-            payBtn.innerHTML = `<span>Processing AI...</span>`;
+            const payBtnLabel = document.getElementById('pay-btn-label');
+            if (payBtn) payBtn.disabled = true;
+            if (payBtnLabel) payBtnLabel.textContent = "Processing AI...";
 
             try {
                 const res = await fetch('/api/process', {
@@ -1817,17 +1883,23 @@ Digital receipt recorded to Google Sheets.
                     body: JSON.stringify({ message: message, customer: customer })
                 });
                 const data = await res.json();
+                lastOrderStatus = data.status || 'unknown';
 
                 // Open Decision & Receipt Modal
                 showDecisionModal(data, message, customer);
                 
-                // Refresh catalog inventory in background
-                syncCatalog(false);
+                if (data.status === 'approved') {
+                    clearCart();
+                    showToast("✅ Order approved! Shelf stock updated & cart cleared.");
+                }
+
+                // Refresh catalog inventory with fresh stock
+                await loadCatalog();
             } catch (err) {
                 console.error("Order error:", err);
                 alert("POS Processing Error: " + err);
             } finally {
-                payBtn.disabled = false;
+                if (payBtn) payBtn.disabled = false;
                 updateCartUI();
             }
         }
@@ -1840,10 +1912,12 @@ Digital receipt recorded to Google Sheets.
             const reasonText = document.getElementById('modal-reason-text');
             const telegramText = document.getElementById('modal-telegram-text');
 
-            const status = data.status || 'unknown';
-            orderIdTag.textContent = data.order_id || 'ORD-TERMINAL';
+            const status = (data && data.status) ? data.status : 'unknown';
+            const orderId = (data && data.order_id) ? data.order_id : 'ORD-TERMINAL';
+            const totalVal = (data && data.total != null) ? data.total : '0';
 
-            statusBox.className = `status-box ${status}`;
+            if (orderIdTag) orderIdTag.textContent = orderId;
+            if (statusBox) statusBox.className = `status-box ${status}`;
 
             let label = '● APPROVED';
             let desc = '';
@@ -1851,36 +1925,43 @@ Digital receipt recorded to Google Sheets.
 
             if (status === 'approved') {
                 label = '● APPROVED (AUTO-FULFILL)';
-                desc = `Transaction autonomously approved and fulfilled. Total value is $${data.total || '0'} (< $100 escalation threshold), and register shelf stock was verified. Inventory was reduced on shelf, and digital receipt was logged to Google Sheets and Telegram.`;
-                teleMsg = `✅ Order Approved (Elora POS)\n\nOrder ID: ${data.order_id}\nCustomer: ${customer}\nTotal: $${data.total}\nReceipt generated and shelf stock deducted.`;
+                desc = `Transaction autonomously approved and fulfilled. Total value is $${totalVal} (< $100 escalation threshold), and register shelf stock was verified. Inventory was reduced on shelf, and digital receipt was logged to Google Sheets and Telegram.`;
+                teleMsg = `✅ Order Approved (Elora POS)\n\nOrder ID: ${orderId}\nCustomer: ${customer}\nTotal: $${totalVal}\nReceipt generated and shelf stock deducted.`;
             } else if (status === 'escalated') {
                 label = '● MANAGER OVERRIDE ESCALATED';
-                desc = `Transaction total is $${data.total} (>= $100 threshold). Per store policy, high-value purchases require Manager Override sign-off. An escalation notification was dispatched to store manager via Telegram.`;
-                teleMsg = `⚠️ POS Manager Escalation Alert\n\nOrder ID: ${data.order_id}\nCustomer: ${customer}\nTotal: $${data.total}\nReason: Total >= $100 requires manager review.\nReply APPROVE to authorize.`;
+                desc = `Transaction total is $${totalVal} (>= $100 threshold). Per store policy, high-value purchases require Manager Override sign-off. An escalation notification was dispatched to store manager via Telegram.`;
+                teleMsg = `⚠️ POS Manager Escalation Alert\n\nOrder ID: ${orderId}\nCustomer: ${customer}\nTotal: $${totalVal}\nReason: Total >= $100 requires manager review.\nReply APPROVE to authorize.`;
             } else if (status === 'alternative_suggested') {
                 label = '● ALTERNATIVE VARIANTS OFFERED';
                 desc = `Requested item quantity exceeds on-shelf stock. The POS agent autonomously verified inventory and offered available substitute color variants from backstock without prematurely reducing shelf counts.`;
-                teleMsg = `📦 Stock Notice — ${data.order_id}\n\nShelf quantity insufficient for requested variant.\nAlternative available color variants offered.\nTotal: $${data.total}\nCustomer notified to confirm swap.`;
+                teleMsg = `📦 Stock Notice — ${orderId}\n\nShelf quantity insufficient for requested variant.\nAlternative available color variants offered.\nTotal: $${totalVal}\nCustomer notified to confirm swap.`;
+            } else if (status === 'rejected') {
+                label = '● ORDER REJECTED (NO ALTERNATIVES)';
+                desc = `The requested quantity or product exceeds total inventory capacity, and no suitable substitute items exist. The POS agent autonomously declined the order to prevent overselling.`;
+                teleMsg = `❌ Order Declined — ${orderId}\n\nWe cannot fulfill this request and no suitable alternatives are available.`;
             } else {
                 label = '● CATALOG CLARIFICATION REQUIRED';
-                desc = `Item was not found in register catalog or quantity details were incomplete. The POS terminal paused fulfillment and requested SKU clarification.`;
-                teleMsg = `❓ Item Inquiry — ${data.order_id}\n\nItem not recognized in active POS catalog.\nPlease provide SKU or color variant.`;
+                desc = `Item was not found in register catalog or quantity details were incomplete. The POS terminal paused fulfillment and requested SKU or variant clarification.`;
+                teleMsg = `❓ Item Inquiry — ${orderId}\n\nItem not recognized in active POS catalog.\nPlease provide SKU or color variant.`;
             }
 
-            statusText.innerHTML = `<span>${label}</span>`;
-            reasonText.textContent = desc;
-            telegramText.textContent = teleMsg;
+            if (statusText) statusText.innerHTML = `<span>${label}</span>`;
+            if (reasonText) reasonText.textContent = desc;
+            if (telegramText) telegramText.textContent = teleMsg;
 
             // Open modal via native dialog API
-            dialog.showModal();
+            if (dialog && typeof dialog.showModal === 'function') {
+                dialog.showModal();
+            }
         }
 
         function closeDecisionDialog(resetSale = false) {
             const dialog = document.getElementById('decision-dialog');
             dialog.close();
-            if (resetSale) {
+            if (resetSale || lastOrderStatus === 'approved') {
                 clearCart();
-                showToast("Ready for new customer");
+                loadCatalog();
+                showToast("Ready for next customer");
             }
         }
 
@@ -1986,12 +2067,14 @@ Digital receipt recorded to Google Sheets.
         function showToast(message) {
             const toast = document.getElementById('toast-banner');
             const msgSpan = document.getElementById('toast-message');
-            msgSpan.textContent = message;
-            toast.classList.add('show');
-            clearTimeout(window.toastTimer);
-            window.toastTimer = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2600);
+            if (msgSpan) msgSpan.textContent = message;
+            if (toast) {
+                toast.classList.add('show');
+                clearTimeout(window.toastTimer);
+                window.toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2600);
+            }
         }
 
         function toggleFullScreen() {
